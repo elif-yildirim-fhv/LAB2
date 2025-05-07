@@ -11,52 +11,77 @@ public class AirCondition extends AbstractBehavior<AirCondition.AirConditionComm
     public interface AirConditionCommand {}
 
     public static final class PowerAirCondition implements AirConditionCommand {
-        final Boolean value;
+        final boolean on;
 
-        public PowerAirCondition(Boolean value) {
-            this.value = value;
+        public PowerAirCondition(boolean on) {
+            this.on = on;
         }
     }
 
     public static final class EnrichedTemperature implements AirConditionCommand {
-        Double value;
-        String unit;
+        final double value;
+        final String unit;
 
-        public EnrichedTemperature(Double value, String unit) {
+        public EnrichedTemperature(double value, String unit) {
             this.value = value;
             this.unit = unit;
         }
     }
 
-    private final String identifier;
+    private final String groupId;
+    private final String deviceId;
+    private boolean isOn = false;
+    private final double activationThreshold = 20.0; // Celsius
 
-    public AirCondition(ActorContext<AirConditionCommand> context, String identifier) {
+    public AirCondition(ActorContext<AirConditionCommand> context, String groupId, String deviceId) {
         super(context);
-        this.identifier = identifier;
-        getContext().getLog().info("AirCondition started");
+        this.groupId = groupId;
+        this.deviceId = deviceId;
+        getContext().getLog().info("AirCondition {}-{} started", groupId, deviceId);
     }
 
-    public static Behavior<AirConditionCommand> create(String identifier) {
-        return Behaviors.setup(context -> new AirCondition(context, identifier));
+    public static Behavior<AirConditionCommand> create(String groupId, String deviceId) {
+        return Behaviors.setup(context -> new AirCondition(context, groupId, deviceId));
     }
 
     @Override
     public Receive<AirConditionCommand> createReceive() {
         return newReceiveBuilder()
-                .onMessage(EnrichedTemperature.class, this::onReadTemperature)
+                .onMessage(EnrichedTemperature.class, this::onTemperatureUpdate)
+                .onMessage(PowerAirCondition.class, this::onPowerCommand)
                 .onSignal(PostStop.class, signal -> onPostStop())
                 .build();
     }
 
-    private Behavior<AirConditionCommand> onReadTemperature(EnrichedTemperature r) {
-        getContext().getLog().info("Aircondition reading {}", r.value);
-        // TODO: process temperature
+    private Behavior<AirConditionCommand> onTemperatureUpdate(EnrichedTemperature temp) {
+        if (!"°C".equals(temp.unit)) {
+            getContext().getLog().warn("Received temperature in unsupported unit: {}", temp.unit);
+            return this;
+        }
 
-        return Behaviors.same();
+        boolean shouldBeOn = temp.value > activationThreshold;
+
+        if (shouldBeOn && !isOn) {
+            getContext().getLog().info("Turning AC ON (Temperature: {}°C)", temp.value);
+            isOn = true;
+        } else if (!shouldBeOn && isOn) {
+            getContext().getLog().info("Turning AC OFF (Temperature: {}°C)", temp.value);
+            isOn = false;
+        }
+
+        return this;
     }
 
-    private AirCondition onPostStop() {
-        getContext().getLog().info("AirCondition actor {}-{} stopped", identifier);
+    private Behavior<AirConditionCommand> onPowerCommand(PowerAirCondition cmd) {
+        if (cmd.on != isOn) {
+            isOn = cmd.on;
+            getContext().getLog().info("AC manually turned {}", isOn ? "ON" : "OFF");
+        }
+        return this;
+    }
+
+    private Behavior<AirConditionCommand> onPostStop() {
+        getContext().getLog().info("AirCondition actor {}-{} stopped", groupId, deviceId);
         return this;
     }
 }

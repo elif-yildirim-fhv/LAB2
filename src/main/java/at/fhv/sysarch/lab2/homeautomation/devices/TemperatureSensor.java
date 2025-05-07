@@ -9,28 +9,43 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
 public class TemperatureSensor extends AbstractBehavior<TemperatureSensor.TemperatureCommand> {
-
     public interface TemperatureCommand {}
 
     public static final class ReadTemperature implements TemperatureCommand {
-        final Double value;
+        final ActorRef<TemperatureResponse> replyTo;
 
-        public ReadTemperature(Double value) {
-            this.value = value;
+        public ReadTemperature(ActorRef<TemperatureResponse> replyTo) {
+            this.replyTo = replyTo;
         }
     }
 
-    public static Behavior<TemperatureCommand> create(ActorRef<AirCondition.AirConditionCommand> airCondition) {
-        return Behaviors.setup(context -> new TemperatureSensor(context, airCondition));
+    public static final class TemperatureResponse {
+        final double value;
+        final String unit;
+
+        public TemperatureResponse(double value, String unit) {
+            this.value = value;
+            this.unit = unit;
+        }
     }
 
-    private final ActorRef<AirCondition.AirConditionCommand> airCondition;
+    private final String groupId;
+    private final String deviceId;
+    private double currentTemperature = 20.0;
 
-    public TemperatureSensor(ActorContext<TemperatureCommand> context, ActorRef<AirCondition.AirConditionCommand> airCondition) {
+    public TemperatureSensor(ActorContext<TemperatureCommand> context, String groupId, String deviceId) {
         super(context);
-        this.airCondition = airCondition;
+        this.groupId = groupId;
+        this.deviceId = deviceId;
+        getContext().getLog().info("TemperatureSensor {}-{} started", groupId, deviceId);
+    }
 
-        getContext().getLog().info("TemperatureSensor started");
+    public static Behavior<TemperatureCommand> create(String groupId, String deviceId) {
+        return Behaviors.setup(context -> new TemperatureSensor(context, groupId, deviceId));
+    }
+
+    public void updateTemperature(double newTemp) {
+        this.currentTemperature = newTemp;
     }
 
     @Override
@@ -41,15 +56,14 @@ public class TemperatureSensor extends AbstractBehavior<TemperatureSensor.Temper
                 .build();
     }
 
-    private Behavior<TemperatureCommand> onReadTemperature(ReadTemperature r) {
-        getContext().getLog().info("TemperatureSensor received {}", r.value);
-        this.airCondition.tell(new AirCondition.EnrichedTemperature(r.value, "Celsius"));
+    private Behavior<TemperatureCommand> onReadTemperature(ReadTemperature cmd) {
+        cmd.replyTo.tell(new TemperatureResponse(currentTemperature, "°C"));
+        getContext().getLog().debug("Temperature reading: {}°C", currentTemperature);
         return this;
     }
 
-    private TemperatureSensor onPostStop() {
-        getContext().getLog().info("TemperatureSensor actor {}-{} stopped");
+    private Behavior<TemperatureCommand> onPostStop() {
+        getContext().getLog().info("TemperatureSensor actor {}-{} stopped", groupId, deviceId);
         return this;
     }
-
 }
