@@ -1,62 +1,67 @@
 package at.fhv.sysarch.lab2.homeautomation.devices;
 
 import akka.actor.typed.Behavior;
-import akka.actor.typed.PostStop;
-import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.actor.typed.javadsl.Receive;
+import akka.actor.typed.javadsl.*;
+import at.fhv.sysarch.lab2.homeautomation.shared.Temperature;
 
 public class AirCondition extends AbstractBehavior<AirCondition.AirConditionCommand> {
+
     public interface AirConditionCommand {}
 
+    // Temperatur empfangen
+    public static final class ReceiveTemperature implements AirConditionCommand {
+        public final Temperature temperature;
+
+        public ReceiveTemperature(Temperature temperature) {
+            this.temperature = temperature;
+        }
+    }
+
+    // Optional: externe Steuerung (falls gewünscht)
     public static final class PowerAirCondition implements AirConditionCommand {
-        final Boolean value;
-
-        public PowerAirCondition(Boolean value) {
-            this.value = value;
+        public final boolean powerOn;
+        public PowerAirCondition(boolean powerOn) {
+            this.powerOn = powerOn;
         }
     }
 
-    public static final class EnrichedTemperature implements AirConditionCommand {
-        Double value;
-        String unit;
+    private boolean isActive = false;
 
-        public EnrichedTemperature(Double value, String unit) {
-            this.value = value;
-            this.unit = unit;
-        }
+    public static Behavior<AirConditionCommand> create() {
+        return Behaviors.setup(AirCondition::new);
     }
 
-    private final String identifier;
-
-    public AirCondition(ActorContext<AirConditionCommand> context, String identifier) {
+    private AirCondition(ActorContext<AirConditionCommand> context) {
         super(context);
-        this.identifier = identifier;
-        getContext().getLog().info("AirCondition started");
-    }
-
-    public static Behavior<AirConditionCommand> create(String identifier) {
-        return Behaviors.setup(context -> new AirCondition(context, identifier));
+        context.getLog().info("AirCondition started");
     }
 
     @Override
     public Receive<AirConditionCommand> createReceive() {
         return newReceiveBuilder()
-                .onMessage(EnrichedTemperature.class, this::onReadTemperature)
-                .onSignal(PostStop.class, signal -> onPostStop())
+                .onMessage(ReceiveTemperature.class, this::onReceiveTemperature)
+                .onMessage(PowerAirCondition.class, this::onPowerToggle)
                 .build();
     }
 
-    private Behavior<AirConditionCommand> onReadTemperature(EnrichedTemperature r) {
-        getContext().getLog().info("Aircondition reading {}", r.value);
-        // TODO: process temperature
+    private Behavior<AirConditionCommand> onReceiveTemperature(ReceiveTemperature msg) {
+        double value = msg.temperature.value();
+        getContext().getLog().info("[DEVICE] Received temperature: {}", value);
 
-        return Behaviors.same();
+        if (value >= 20 && !isActive) {
+            isActive = true;
+            getContext().getLog().info("[DEVICE] AirCondition activated (>= 20°C)");
+        } else if (value < 20 && isActive) {
+            isActive = false;
+            getContext().getLog().info("[DEVICE] AirCondition deactivated (< 20°C)");
+        }
+
+        return this;
     }
 
-    private AirCondition onPostStop() {
-        getContext().getLog().info("AirCondition actor {}-{} stopped", identifier);
+    private Behavior<AirConditionCommand> onPowerToggle(PowerAirCondition msg) {
+        isActive = msg.powerOn;
+        getContext().getLog().info("[DEVICE] AirCondition manually turned {}", isActive ? "ON" : "OFF");
         return this;
     }
 }
