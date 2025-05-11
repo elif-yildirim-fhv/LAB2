@@ -6,6 +6,7 @@ import akka.actor.typed.PostStop;
 import akka.actor.typed.javadsl.*;
 import at.fhv.sysarch.lab2.homeautomation.devices.*;
 import at.fhv.sysarch.lab2.homeautomation.shared.Movie;
+import at.fhv.sysarch.lab2.homeautomation.shared.Temperature;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -97,12 +98,12 @@ public class UI extends AbstractBehavior<Void> {
             return;
         }
         try {
-            double value = Double.parseDouble(parts[1]);
-            tempSensor.tell(new TemperatureSensor.ReadTemperature(value));
-            System.out.println("[CMD] Simulated temperature: " + value);
-        } catch (NumberFormatException e) {
-            System.out.println("[ERROR] Invalid temperature value");
-        }
+         double value = Double.parseDouble(parts[1]);
+        tempSensor.tell(new TemperatureSensor.ReceiveTemperature(new Temperature("Celsius", value)));
+        System.out.println("[CMD] Simulated temperature: " + value);
+    } catch (NumberFormatException e) {
+        System.out.println("[ERROR] Invalid temperature value");
+    }
     }
 
     private void handleAC(String[] parts) {

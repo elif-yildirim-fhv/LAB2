@@ -2,7 +2,6 @@ package at.fhv.sysarch.lab2.homeautomation.devices;
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
-import akka.actor.typed.PostStop;
 import akka.actor.typed.javadsl.*;
 import at.fhv.sysarch.lab2.homeautomation.environment.WeatherEnvironment;
 import at.fhv.sysarch.lab2.homeautomation.shared.Weather;
@@ -11,71 +10,59 @@ import java.time.Duration;
 
 public class WeatherSensor extends AbstractBehavior<WeatherSensor.WeatherSensorCommand> {
 
-    // Nachrichten (Commands)
     public interface WeatherSensorCommand {}
 
-    // Anfrage an das Environment (von sich selbst)
-    public static final class RequestWeather implements WeatherSensorCommand {}
-
-    // Antwort vom Environment
-    public static final class ReceiveWeatherResponse implements WeatherSensorCommand {
+    public static final class DoRequestWeather implements WeatherSensorCommand {}
+    public static final class ReceiveWeather implements WeatherSensorCommand {
         public final Weather weather;
 
-        public ReceiveWeatherResponse(Weather weather) {
+        public ReceiveWeather(Weather weather) {
             this.weather = weather;
         }
     }
 
-    // Actor-Referenzen
-    private final ActorRef<WeatherEnvironment.WeatherEnvironmentCommand> environment;
-
-    // Zustand
-    private Weather currentWeather = Weather.SUNNY;
-
-    // Factory-Methode
-    public static Behavior<WeatherSensorCommand> create(ActorRef<WeatherEnvironment.WeatherEnvironmentCommand> environment) {
+    public static Behavior<WeatherSensorCommand> create(
+            ActorRef<WeatherEnvironment.WeatherEnvironmentCommand> environment,
+            ActorRef<Blinds.BlindsCommand> blinds) {
         return Behaviors.setup(context ->
                 Behaviors.withTimers(timers ->
-                        new WeatherSensor(context, environment, timers)));
+                        new WeatherSensor(context, environment, blinds, timers)));
     }
 
-    // Konstruktor
+    private final ActorRef<WeatherEnvironment.WeatherEnvironmentCommand> environment;
+    private final ActorRef<Blinds.BlindsCommand> blinds;
+    private Weather lastWeather = null;
+
     private WeatherSensor(ActorContext<WeatherSensorCommand> context,
                           ActorRef<WeatherEnvironment.WeatherEnvironmentCommand> environment,
+                          ActorRef<Blinds.BlindsCommand> blinds,
                           TimerScheduler<WeatherSensorCommand> timers) {
         super(context);
         this.environment = environment;
-
-        // alle 15 Sekunden Wetter anfragen
-        timers.startTimerAtFixedRate(new RequestWeather(), Duration.ofSeconds(15));
+        this.blinds = blinds;
+        timers.startTimerAtFixedRate(new DoRequestWeather(), Duration.ofSeconds(15));
         getContext().getLog().info("WeatherSensor started and polling environment");
     }
 
     @Override
     public Receive<WeatherSensorCommand> createReceive() {
         return newReceiveBuilder()
-                .onMessage(RequestWeather.class, this::onRequestWeather)
-                .onMessage(ReceiveWeatherResponse.class, this::onReceiveWeather)
-                .onSignal(PostStop.class, signal -> onPostStop())
+                .onMessage(DoRequestWeather.class, this::onRequestWeather)
+                .onMessage(ReceiveWeather.class, this::onReceiveWeather)
                 .build();
     }
 
-    // Wetter vom Environment anfragen
-    private Behavior<WeatherSensorCommand> onRequestWeather(RequestWeather msg) {
+    private Behavior<WeatherSensorCommand> onRequestWeather(DoRequestWeather msg) {
         environment.tell(new WeatherEnvironment.WeatherRequest(getContext().getSelf()));
         return this;
     }
 
-    // Antwort verarbeiten
-    private Behavior<WeatherSensorCommand> onReceiveWeather(ReceiveWeatherResponse response) {
-        this.currentWeather = response.weather;
-        getContext().getLog().info("[SENSOR] Current weather: {}", currentWeather);
-        return this;
-    }
-
-    // Stop-Log
-    private Behavior<WeatherSensorCommand> onPostStop() {
-        getContext().getLog().info("WeatherSensor stopped");
+    private Behavior<WeatherSensorCommand> onReceiveWeather(ReceiveWeather msg) {
+        if (msg.weather != lastWeather) {
+            blinds.tell(new Blinds.WeatherChangedCommand(msg.weather == Weather.RAINY));
+            lastWeather = msg.weather;
+        }
+        getContext().getLog().info("[SENSOR] Measured weather: {}", msg.weather);
         return this;
     }
 }

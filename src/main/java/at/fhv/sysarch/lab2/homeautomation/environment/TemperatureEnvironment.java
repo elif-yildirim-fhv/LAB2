@@ -31,7 +31,7 @@ public class TemperatureEnvironment extends AbstractBehavior<TemperatureEnvironm
         }
     }
 
-    public final class ReceiveTemperatureRequest implements TemperatureEnvironmentCommand {
+    public final static class ReceiveTemperatureRequest implements TemperatureEnvironmentCommand {
     public final ActorRef<TemperatureSensor.TemperatureCommand> sensor;
     public ReceiveTemperatureRequest(ActorRef<TemperatureSensor.TemperatureCommand> sensor) {
         this.sensor = sensor;
@@ -80,7 +80,7 @@ public class TemperatureEnvironment extends AbstractBehavior<TemperatureEnvironm
     }
 
     private Behavior<TemperatureEnvironmentCommand> onRequest(ReceiveTemperatureRequest msg) {
-        msg.sensor.tell(new TemperatureSensor.ReadTemperature(currentTemperature.value()));
+        msg.sensor.tell(new TemperatureSensor.ReceiveTemperature(currentTemperature));
         return this;
     }
 

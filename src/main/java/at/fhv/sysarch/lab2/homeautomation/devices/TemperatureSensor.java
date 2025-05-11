@@ -2,57 +2,63 @@ package at.fhv.sysarch.lab2.homeautomation.devices;
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
-import akka.actor.typed.PostStop;
-import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.actor.typed.javadsl.Receive;
+import akka.actor.typed.javadsl.*;
+import at.fhv.sysarch.lab2.homeautomation.environment.TemperatureEnvironment;
 import at.fhv.sysarch.lab2.homeautomation.shared.Temperature;
 
+import java.time.Duration;
 
 public class TemperatureSensor extends AbstractBehavior<TemperatureSensor.TemperatureCommand> {
 
     public interface TemperatureCommand {}
 
-    public static final class ReadTemperature implements TemperatureCommand {
-        final Double value;
+    public static final class DoRequestTemperature implements TemperatureCommand {}
+    public static final class ReceiveTemperature implements TemperatureCommand {
+        public final Temperature temperature;
 
-        public ReadTemperature(Double value) {
-            this.value = value;
+        public ReceiveTemperature(Temperature temperature) {
+            this.temperature = temperature;
         }
     }
 
-    public static Behavior<TemperatureCommand> create(ActorRef<AirCondition.AirConditionCommand> airCondition) {
-        return Behaviors.setup(context -> new TemperatureSensor(context, airCondition));
+    public static Behavior<TemperatureCommand> create(
+            ActorRef<TemperatureEnvironment.TemperatureEnvironmentCommand> environment,
+            ActorRef<AirCondition.AirConditionCommand> airCondition) {
+        return Behaviors.setup(context ->
+                Behaviors.withTimers(timers ->
+                        new TemperatureSensor(context, environment, airCondition, timers)));
     }
 
+    private final ActorRef<TemperatureEnvironment.TemperatureEnvironmentCommand> environment;
     private final ActorRef<AirCondition.AirConditionCommand> airCondition;
 
-    public TemperatureSensor(ActorContext<TemperatureCommand> context, ActorRef<AirCondition.AirConditionCommand> airCondition) {
+    private TemperatureSensor(ActorContext<TemperatureCommand> context,
+                              ActorRef<TemperatureEnvironment.TemperatureEnvironmentCommand> environment,
+                              ActorRef<AirCondition.AirConditionCommand> airCondition,
+                              TimerScheduler<TemperatureCommand> timers) {
         super(context);
+        this.environment = environment;
         this.airCondition = airCondition;
-
-        getContext().getLog().info("TemperatureSensor started");
+        timers.startTimerAtFixedRate(new DoRequestTemperature(), Duration.ofSeconds(5));
+        getContext().getLog().info("TemperatureSensor started and polling environment");
     }
 
     @Override
     public Receive<TemperatureCommand> createReceive() {
         return newReceiveBuilder()
-                .onMessage(ReadTemperature.class, this::onReadTemperature)
-                .onSignal(PostStop.class, signal -> onPostStop())
+                .onMessage(DoRequestTemperature.class, this::onRequestTemperature)
+                .onMessage(ReceiveTemperature.class, this::onReceiveTemperature)
                 .build();
     }
 
-    private Behavior<TemperatureCommand> onReadTemperature(ReadTemperature r) {
-        getContext().getLog().info("TemperatureSensor received {}", r.value);
-        Temperature temp = new Temperature("Celsius", r.value);
-        this.airCondition.tell(new AirCondition.ReceiveTemperature(temp));
+    private Behavior<TemperatureCommand> onRequestTemperature(DoRequestTemperature msg) {
+        environment.tell(new TemperatureEnvironment.ReceiveTemperatureRequest(getContext().getSelf()));
         return this;
     }
 
-    private TemperatureSensor onPostStop() {
-        getContext().getLog().info("TemperatureSensor actor {}-{} stopped");
+    private Behavior<TemperatureCommand> onReceiveTemperature(ReceiveTemperature msg) {
+        getContext().getLog().info("[SENSOR] Measured temperature: {}", msg.temperature);
+        airCondition.tell(new AirCondition.ReceiveTemperature(msg.temperature));
         return this;
     }
-
 }
