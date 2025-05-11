@@ -5,6 +5,7 @@ import akka.actor.typed.Behavior;
 import akka.actor.typed.PostStop;
 import akka.actor.typed.javadsl.*;
 import at.fhv.sysarch.lab2.homeautomation.devices.*;
+import at.fhv.sysarch.lab2.homeautomation.shared.EnvironmentMode;
 import at.fhv.sysarch.lab2.homeautomation.shared.Movie;
 import at.fhv.sysarch.lab2.homeautomation.shared.Temperature;
 
@@ -68,6 +69,7 @@ public class UI extends AbstractBehavior<Void> {
         System.out.println("  media off                 -> stop MediaStation");
         System.out.println("  blinds movie <on/off>     -> simulate MediaState for blinds");
         System.out.println("  blinds weather <sun/rain> -> simulate weather for blinds");
+        System.out.println("  env temp <internal/external> -> switch temperature mode");
         System.out.println("  quit                      -> exit UI");
         System.out.println("=================================");
 
@@ -83,6 +85,7 @@ public class UI extends AbstractBehavior<Void> {
                 case "ac" -> handleAC(parts);
                 case "media" -> handleMedia(parts);
                 case "blinds" -> handleBlinds(parts);
+                case "env" -> handleEnv(parts);
                 case "quit" -> {
                     System.out.println("[CMD] Shutting down UI...");
                     return;
@@ -98,12 +101,12 @@ public class UI extends AbstractBehavior<Void> {
             return;
         }
         try {
-         double value = Double.parseDouble(parts[1]);
-        tempSensor.tell(new TemperatureSensor.ReceiveTemperature(new Temperature("Celsius", value)));
-        System.out.println("[CMD] Simulated temperature: " + value);
-    } catch (NumberFormatException e) {
-        System.out.println("[ERROR] Invalid temperature value");
-    }
+            double value = Double.parseDouble(parts[1]);
+            tempSensor.tell(new TemperatureSensor.ReceiveTemperature(new Temperature("Celsius", value)));
+            System.out.println("[CMD] Simulated temperature: " + value);
+        } catch (NumberFormatException e) {
+            System.out.println("[ERROR] Invalid temperature value");
+        }
     }
 
     private void handleAC(String[] parts) {
@@ -150,6 +153,21 @@ public class UI extends AbstractBehavior<Void> {
             System.out.println("[CMD] Simulated weather: " + (isSunny ? "SUNNY" : "RAINY"));
         } else {
             System.out.println("[CMD] Unknown blinds command");
+        }
+    }
+
+    private void handleEnv(String[] parts) {
+        if (parts.length < 3) {
+            System.out.println("[CMD] Usage: env temp <internal/external>");
+            return;
+        }
+
+        if (parts[1].equalsIgnoreCase("temp")) {
+            EnvironmentMode mode = parts[2].equalsIgnoreCase("external") ? EnvironmentMode.EXTERNAL : EnvironmentMode.INTERNAL;
+            tempSensor.tell(new TemperatureSensor.SetMode(mode));
+            System.out.println("[CMD] Temperature mode set to " + mode);
+        } else {
+            System.out.println("[CMD] Unknown env command");
         }
     }
 }
