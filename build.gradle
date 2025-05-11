@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'com.google.protobuf' version '0.9.4'  // For gRPC
 }
 
 group 'at.fhv.lab2'
@@ -11,6 +12,9 @@ repositories {
     maven {
         url "https://repo.akka.io/maven"
     }
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
 }
 
 dependencies {
@@ -18,8 +22,29 @@ dependencies {
     implementation 'com.typesafe.akka:akka-actor-typed_3:2.10.2'
     implementation 'com.typesafe.akka:akka-actor-testkit-typed_3:2.10.2'
     implementation 'ch.qos.logback:logback-classic:1.5.18'
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
+    implementation 'io.grpc:grpc-netty-shaded:1.58.0'
+    implementation 'io.grpc:grpc-protobuf:1.58.0'
+    implementation 'io.grpc:grpc-stub:1.58.0'
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.24.0"
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.58.0'
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
 }
 
 application {
