@@ -9,13 +9,13 @@ import java.time.Duration;
 
 public class WeatherEnvironment extends AbstractBehavior<WeatherEnvironment.WeatherEnvironmentCommand> {
 
-    // Nachrichten
     public interface WeatherEnvironmentCommand {}
 
     public static final class WeatherUpdate implements WeatherEnvironmentCommand {}
 
     public static final class WeatherRequest implements WeatherEnvironmentCommand {
         public final ActorRef<WeatherSensor.WeatherSensorCommand> sender;
+
         public WeatherRequest(ActorRef<WeatherSensor.WeatherSensorCommand> sender) {
             this.sender = sender;
         }
@@ -23,18 +23,18 @@ public class WeatherEnvironment extends AbstractBehavior<WeatherEnvironment.Weat
 
     private Weather currentWeather;
 
-    // Factory-Methode
     public static Behavior<WeatherEnvironmentCommand> create(Weather initWeather) {
         return Behaviors.setup(context ->
-                Behaviors.withTimers(timers ->
-                        new WeatherEnvironment(context, initWeather, timers)));
+                Behaviors.withTimers(timer ->
+                        new WeatherEnvironment(context, initWeather, timer)));
     }
 
-    private WeatherEnvironment(ActorContext<WeatherEnvironmentCommand> context, Weather initWeather, TimerScheduler<WeatherEnvironmentCommand> scheduler) {
+    private WeatherEnvironment(ActorContext<WeatherEnvironmentCommand> context,
+                               Weather initWeather,
+                               TimerScheduler<WeatherEnvironmentCommand> scheduler) {
         super(context);
         this.currentWeather = initWeather;
-
-        getContext().getLog().info("[ENVIRONMENT] Starting weather simulation...");
+        context.getLog().info("[ENVIRONMENT] Starting weather simulation...");
         scheduler.startTimerAtFixedRate(new WeatherUpdate(), Duration.ofSeconds(30));
     }
 
@@ -53,7 +53,7 @@ public class WeatherEnvironment extends AbstractBehavior<WeatherEnvironment.Weat
     }
 
     private Behavior<WeatherEnvironmentCommand> onRequest(WeatherRequest msg) {
-        msg.sender.tell(new WeatherSensor.ReceiveWeatherResponse(currentWeather));
+        msg.sender.tell(new WeatherSensor.ReceiveWeather(currentWeather));
         return this;
     }
 }

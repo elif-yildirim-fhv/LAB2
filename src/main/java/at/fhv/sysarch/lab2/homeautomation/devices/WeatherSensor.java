@@ -10,9 +10,13 @@ import java.time.Duration;
 
 public class WeatherSensor extends AbstractBehavior<WeatherSensor.WeatherSensorCommand> {
 
+    // --- Nachrichteninterface ---
     public interface WeatherSensorCommand {}
 
+    // Intern vom Actor selbst genutzt (alle 15 Sek.)
     public static final class DoRequestWeather implements WeatherSensorCommand {}
+
+    // Externe Nachricht – für WeatherEnvironment **und** MQTT
     public static final class ReceiveWeather implements WeatherSensorCommand {
         public final Weather weather;
 
@@ -21,6 +25,12 @@ public class WeatherSensor extends AbstractBehavior<WeatherSensor.WeatherSensorC
         }
     }
 
+    // --- Felder ---
+    private final ActorRef<WeatherEnvironment.WeatherEnvironmentCommand> environment;
+    private final ActorRef<Blinds.BlindsCommand> blinds;
+    private Weather lastWeather = null;
+
+    // --- Factory ---
     public static Behavior<WeatherSensorCommand> create(
             ActorRef<WeatherEnvironment.WeatherEnvironmentCommand> environment,
             ActorRef<Blinds.BlindsCommand> blinds) {
@@ -29,18 +39,16 @@ public class WeatherSensor extends AbstractBehavior<WeatherSensor.WeatherSensorC
                         new WeatherSensor(context, environment, blinds, timers)));
     }
 
-    private final ActorRef<WeatherEnvironment.WeatherEnvironmentCommand> environment;
-    private final ActorRef<Blinds.BlindsCommand> blinds;
-    private Weather lastWeather = null;
-
-    private WeatherSensor(ActorContext<WeatherSensorCommand> context,
-                          ActorRef<WeatherEnvironment.WeatherEnvironmentCommand> environment,
-                          ActorRef<Blinds.BlindsCommand> blinds,
-                          TimerScheduler<WeatherSensorCommand> timers) {
+    private WeatherSensor(
+            ActorContext<WeatherSensorCommand> context,
+            ActorRef<WeatherEnvironment.WeatherEnvironmentCommand> environment,
+            ActorRef<Blinds.BlindsCommand> blinds,
+            TimerScheduler<WeatherSensorCommand> timers) {
         super(context);
         this.environment = environment;
         this.blinds = blinds;
-        timers.startTimerAtFixedRate(new DoRequestWeather(), Duration.ofSeconds(15));
+
+        timers.startTimerAtFixedRate(new DoRequestWeather(), Duration.ofSeconds(30));
         getContext().getLog().info("WeatherSensor started and polling environment");
     }
 
@@ -59,9 +67,11 @@ public class WeatherSensor extends AbstractBehavior<WeatherSensor.WeatherSensorC
 
     private Behavior<WeatherSensorCommand> onReceiveWeather(ReceiveWeather msg) {
         if (msg.weather != lastWeather) {
-            blinds.tell(new Blinds.WeatherChangedCommand(msg.weather == Weather.RAINY));
+            boolean isSunny = msg.weather == Weather.SUNNY;
+            blinds.tell(new Blinds.WeatherChangedCommand(isSunny));
             lastWeather = msg.weather;
         }
+
         getContext().getLog().info("[SENSOR] Measured weather: {}", msg.weather);
         return this;
     }

@@ -49,7 +49,7 @@ public class TemperatureSensor extends AbstractBehavior<TemperatureSensor.Temper
         super(context);
         this.environment = environment;
         this.airCondition = airCondition;
-        timers.startTimerAtFixedRate(new DoRequestTemperature(), Duration.ofSeconds(5));
+        timers.startTimerAtFixedRate(new DoRequestTemperature(), Duration.ofSeconds(30));
         getContext().getLog().info("TemperatureSensor started and polling environment");
     }
 

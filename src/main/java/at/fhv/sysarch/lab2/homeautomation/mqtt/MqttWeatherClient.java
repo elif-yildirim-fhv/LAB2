@@ -6,6 +6,7 @@ import akka.actor.typed.PostStop;
 import akka.actor.typed.javadsl.*;
 import at.fhv.sysarch.lab2.homeautomation.devices.TemperatureSensor;
 import at.fhv.sysarch.lab2.homeautomation.devices.WeatherSensor;
+import at.fhv.sysarch.lab2.homeautomation.shared.Temperature;
 import at.fhv.sysarch.lab2.homeautomation.shared.Weather;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
@@ -137,16 +138,17 @@ public class MqttWeatherClient extends AbstractBehavior<MqttWeatherClient.MqttCo
 		try {
 			if (msg.topic.equals(TOPIC_TEMPERATURE)) {
 				double temperature = Double.parseDouble(msg.message);
-				tempSensor.tell(new TemperatureSensor.ReadTemperature(temperature));
+				tempSensor.tell(new TemperatureSensor.ReceiveTemperature(new Temperature("Celsius", temperature)));
 			} else if (msg.topic.equals(TOPIC_WEATHER)) {
 				Weather weather = msg.message.equalsIgnoreCase("sunny") ? Weather.SUNNY : Weather.RAINY;
-				weatherSensor.tell(new WeatherSensor.ReceiveWeatherResponse(weather));
+				weatherSensor.tell(new WeatherSensor.ReceiveWeather(weather));
 			}
 		} catch (NumberFormatException e) {
 			getContext().getLog().error("Failed to parse temperature value: {}", msg.message);
 		}
 		return this;
 	}
+
 
 	private Behavior<MqttCommand> onPostStop() {
 		if (mqttClient != null) {

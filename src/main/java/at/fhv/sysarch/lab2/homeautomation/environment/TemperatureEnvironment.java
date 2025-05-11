@@ -57,7 +57,7 @@ public class TemperatureEnvironment extends AbstractBehavior<TemperatureEnvironm
         this.timer = timer;
 
         getContext().getLog().info("[ENVIRONMENT] Starting temperature simulation...");
-        timer.startTimerAtFixedRate(new TemperatureUpdate(initTemp), Duration.ofSeconds(10));
+        timer.startTimerAtFixedRate(new TemperatureUpdate(initTemp), Duration.ofSeconds(30));
     }
 
     @Override
