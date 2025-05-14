@@ -6,26 +6,21 @@ option java_outer_classname = "OrderServiceProto";
 
 package orderservice;
 
-// Der OrderService
 service OrderService {
-  // Bestellung verarbeiten
   rpc ProcessOrder (OrderRequest) returns (OrderResponse) {}
 }
 
-// Anfrage für eine Bestellung
 message OrderRequest {
   ProductInfo product = 1;
   int32 amount = 2;
 }
 
-// Produkt-Informationen
 message ProductInfo {
   string name = 1;
   double price = 2;
   double weight = 3;
 }
 
-// Antwort mit Quittung
 message OrderResponse {
   string orderId = 1;
   repeated ProductInfo items = 2;

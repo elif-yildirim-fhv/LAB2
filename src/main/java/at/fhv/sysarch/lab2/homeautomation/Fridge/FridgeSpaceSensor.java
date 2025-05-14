@@ -7,6 +7,7 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import at.fhv.sysarch.lab2.ordersystem.OrderProcessor;
 
 
 public class FridgeSpaceSensor extends AbstractBehavior<FridgeSpaceSensor.FridgeSpaceCommand> {
@@ -14,8 +15,8 @@ public class FridgeSpaceSensor extends AbstractBehavior<FridgeSpaceSensor.Fridge
     public interface FridgeSpaceCommand { }
 
     public static final class AvailableSpaceCommand implements FridgeSpaceCommand {
-        final ActorRef<PrepareOrder.PrepareOrderCommand> prepareOrder;
-        public AvailableSpaceCommand(ActorRef<PrepareOrder.PrepareOrderCommand> prepareOrder) {
+        final ActorRef<OrderProcessor.SpaceSensorCommand> prepareOrder;
+        public AvailableSpaceCommand(ActorRef<OrderProcessor.SpaceSensorCommand> prepareOrder) {
             this.prepareOrder = prepareOrder;
         }
     }
@@ -45,7 +46,7 @@ public class FridgeSpaceSensor extends AbstractBehavior<FridgeSpaceSensor.Fridge
     }
 
     private Behavior<FridgeSpaceCommand> onAvailableSpace(AvailableSpaceCommand command) {
-        command.prepareOrder.tell(new PrepareOrder.SpaceFeedbackCommand(maxSpace - space));
+        command.prepareOrder.tell(new OrderProcessor.SpaceSensorCommand(maxSpace - space));
         return this;
     }
 

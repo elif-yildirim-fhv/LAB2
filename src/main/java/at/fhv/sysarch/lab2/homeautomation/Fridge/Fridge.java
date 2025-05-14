@@ -3,9 +3,9 @@ package at.fhv.sysarch.lab2.homeautomation.Fridge;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
-import at.fhv.sysarch.lab2.homeautomation.OrderSystem.Order;
-import at.fhv.sysarch.lab2.homeautomation.OrderSystem.OrderProcessor;
-import at.fhv.sysarch.lab2.homeautomation.OrderSystem.OrderSession;
+import at.fhv.sysarch.lab2.homeautomation.order.Order;
+import at.fhv.sysarch.lab2.ordersystem.OrderProcessor;
+import at.fhv.sysarch.lab2.homeautomation.order.OrderSession;
 
 import java.util.*;
 
@@ -13,10 +13,8 @@ import java.util.*;
 
 public class Fridge extends AbstractBehavior<Fridge.FridgeCommand> {
 
-    // --- Nachrichten ---
     public interface FridgeCommand {}
 
-    // Produkt hinzufügen
     public static final class AddProductCommand implements FridgeCommand {
         public final Product product;
         public final int amount;
@@ -29,7 +27,6 @@ public class Fridge extends AbstractBehavior<Fridge.FridgeCommand> {
         }
     }
 
-    // Produkt konsumieren
     public static final class ConsumeProductCommand implements FridgeCommand {
         public final String productName;
         public final int amount;
@@ -42,7 +39,6 @@ public class Fridge extends AbstractBehavior<Fridge.FridgeCommand> {
         }
     }
 
-    // Produkte abfragen
     public static final class GetProductsCommand implements FridgeCommand {
         public final ActorRef<ProductsResponse> replyTo;
 
@@ -51,7 +47,6 @@ public class Fridge extends AbstractBehavior<Fridge.FridgeCommand> {
         }
     }
 
-    // Bestellhistorie abfragen
     public static final class GetOrderHistoryCommand implements FridgeCommand {
         public final ActorRef<OrderHistoryResponse> replyTo;
 
@@ -60,7 +55,6 @@ public class Fridge extends AbstractBehavior<Fridge.FridgeCommand> {
         }
     }
 
-    // Bestellung erstellen
     public static final class OrderProductCommand implements FridgeCommand {
         public final Product product;
         public final int amount;
@@ -73,7 +67,6 @@ public class Fridge extends AbstractBehavior<Fridge.FridgeCommand> {
         }
     }
 
-    // Antwortnachrichten
     public static final class ProductsResponse {
         public final Map<Product, Integer> products;
 
@@ -112,7 +105,6 @@ public class Fridge extends AbstractBehavior<Fridge.FridgeCommand> {
         }
     }
 
-    // Zustandsinformationen
     private final Map<Product, Integer> products;
     private final List<Order> orderHistory;
     private final double maxWeight;
@@ -120,7 +112,6 @@ public class Fridge extends AbstractBehavior<Fridge.FridgeCommand> {
     private double currentWeight;
     private final ActorRef<OrderProcessor.OrderCommand> orderProcessor;
 
-    // Factory-Methode
     public static Behavior<FridgeCommand> create(int maxProducts, double maxWeight, ActorRef<OrderProcessor.OrderCommand> orderProcessor) {
         return Behaviors.setup(context -> new Fridge(context, maxProducts, maxWeight, orderProcessor));
     }
@@ -162,7 +153,6 @@ public class Fridge extends AbstractBehavior<Fridge.FridgeCommand> {
             return this;
         }
 
-        // Produkt hinzufügen oder Menge erhöhen
         products.merge(cmd.product, cmd.amount, Integer::sum);
         currentWeight = newWeight;
 
@@ -173,7 +163,6 @@ public class Fridge extends AbstractBehavior<Fridge.FridgeCommand> {
     }
 
     private Behavior<FridgeCommand> onConsumeProduct(ConsumeProductCommand cmd) {
-        // Produkt finden
         Optional<Product> productOpt = products.keySet().stream()
                 .filter(p -> p.name().equals(cmd.productName))
                 .findFirst();
@@ -191,14 +180,12 @@ public class Fridge extends AbstractBehavior<Fridge.FridgeCommand> {
             return this;
         }
 
-        // Produkt konsumieren
         int newAmount = currentAmount - cmd.amount;
         if (newAmount > 0) {
             products.put(product, newAmount);
         } else {
             products.remove(product);
 
-            // Automatische Nachbestellung, wenn Produkt ausgeht
             getContext().getSelf().tell(new OrderProductCommand(product, 1, getContext().messageAdapter(
                     OrderResponse.class,
                     response -> new AddProductCommand(product, 1, getContext().messageAdapter(
@@ -226,7 +213,6 @@ public class Fridge extends AbstractBehavior<Fridge.FridgeCommand> {
     }
 
     private Behavior<FridgeCommand> onOrderProduct(OrderProductCommand cmd) {
-        // Kindaktor für diese Bestellsession erstellen (Per-Session-Child Pattern)
         getContext().spawnAnonymous(
                 OrderSession.create(cmd.product, cmd.amount, maxProducts, maxWeight,
                         currentWeight, products, orderProcessor, orderHistory, cmd.replyTo)

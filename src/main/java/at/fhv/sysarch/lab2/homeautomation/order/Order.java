@@ -1,4 +1,4 @@
-package at.fhv.sysarch.lab2.homeautomation.OrderSystem;
+package at.fhv.sysarch.lab2.homeautomation.order;
 
 import at.fhv.sysarch.lab2.homeautomation.Fridge.Product;
 import at.fhv.sysarch.lab2.homeautomation.Fridge.Receipt;

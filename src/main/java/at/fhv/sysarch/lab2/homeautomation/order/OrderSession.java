@@ -1,15 +1,15 @@
-package at.fhv.sysarch.lab2.homeautomation.OrderSystem;
+package at.fhv.sysarch.lab2.homeautomation.order;
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import at.fhv.sysarch.lab2.homeautomation.Fridge.*;
+import at.fhv.sysarch.lab2.ordersystem.OrderProcessor;
 
 import java.util.*;
 
 public class OrderSession extends AbstractBehavior<OrderSession.OrderSessionCommand> {
 
-    // --- Nachrichten ---
     public interface OrderSessionCommand {}
 
     private static final class ProcessOrder implements OrderSessionCommand {}
@@ -22,7 +22,6 @@ public class OrderSession extends AbstractBehavior<OrderSession.OrderSessionComm
         }
     }
 
-    // Zustandsdaten
     private final Product product;
     private final int amount;
     private final int maxProducts;
@@ -33,7 +32,6 @@ public class OrderSession extends AbstractBehavior<OrderSession.OrderSessionComm
     private final List<Order> orderHistory;
     private final ActorRef<Fridge.OrderResponse> replyTo;
 
-    // Factory-Methode
     public static Behavior<OrderSessionCommand> create(
             Product product, int amount, int maxProducts, double maxWeight,
             double currentWeight, Map<Product, Integer> products,
@@ -62,7 +60,6 @@ public class OrderSession extends AbstractBehavior<OrderSession.OrderSessionComm
         this.orderHistory = orderHistory;
         this.replyTo = replyTo;
 
-        // Bestellung gleich starten
         getContext().getSelf().tell(new ProcessOrder());
     }
 
@@ -75,7 +72,6 @@ public class OrderSession extends AbstractBehavior<OrderSession.OrderSessionComm
     }
 
     private Behavior<OrderSessionCommand> onProcessOrder(ProcessOrder msg) {
-        // Prüfen, ob Bestellung möglich ist
         int currentTotal = products.values().stream().mapToInt(Integer::intValue).sum();
         if (currentTotal + amount > maxProducts) {
             replyTo.tell(new Fridge.OrderResponse(false,
@@ -90,7 +86,6 @@ public class OrderSession extends AbstractBehavior<OrderSession.OrderSessionComm
             return Behaviors.stopped();
         }
 
-        // Bestellung an OrderProcessor übermitteln
         ActorRef<Receipt> adapter = getContext().messageAdapter(Receipt.class, ReceiveReceipt::new);
         orderProcessor.tell(new OrderProcessor.ProcessOrderCommand(product, amount, adapter));
 
@@ -98,20 +93,17 @@ public class OrderSession extends AbstractBehavior<OrderSession.OrderSessionComm
     }
 
     private Behavior<OrderSessionCommand> onReceiveReceipt(ReceiveReceipt msg) {
-        // Bestellung in Historie aufnehmen
+
         Order order = new Order(product, amount, msg.receipt);
         orderHistory.add(order);
 
-        // Produkt zum Kühlschrank hinzufügen
         products.merge(product, amount, Integer::sum);
 
         getContext().getLog().info("[DEVICE] Order processed: {} x {}, total price: €{}",
                 amount, product.name(), msg.receipt.totalPrice());
 
-        // Antwort an den ursprünglichen Aufrufer
         replyTo.tell(new Fridge.OrderResponse(true, "Order processed successfully", msg.receipt));
 
-        // Session beenden
         return Behaviors.stopped();
     }
 }

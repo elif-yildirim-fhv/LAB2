@@ -11,7 +11,6 @@ import java.util.*;
 
 public class OrderProcessor extends AbstractBehavior<OrderProcessor.OrderCommand> {
 
-    // --- Nachrichten ---
     public interface OrderCommand {}
 
     public static final class ProcessOrderCommand implements OrderCommand {
@@ -26,7 +25,20 @@ public class OrderProcessor extends AbstractBehavior<OrderProcessor.OrderCommand
         }
     }
 
-    // Factory-Methode
+    public static final class WeightSensorCommand implements OrderCommand {
+        final int weight;
+        public WeightSensorCommand(int weight) {
+            this.weight = weight;
+        }
+    }
+
+    public static final class SpaceSensorCommand implements OrderCommand {
+        final int space;
+        public SpaceSensorCommand(int space) {
+            this.space = space;
+        }
+    }
+
     public static Behavior<OrderCommand> create() {
         return Behaviors.setup(OrderProcessor::new);
     }
@@ -44,7 +56,6 @@ public class OrderProcessor extends AbstractBehavior<OrderProcessor.OrderCommand
     }
 
     private Behavior<OrderCommand> onProcessOrder(ProcessOrderCommand cmd) {
-        // Bestellung verarbeiten (hier vereinfacht)
         String orderId = UUID.randomUUID().toString();
         double totalPrice = cmd.product.price() * cmd.amount;
 
@@ -53,13 +64,11 @@ public class OrderProcessor extends AbstractBehavior<OrderProcessor.OrderCommand
 
         int[] quantities = new int[] { cmd.amount };
 
-        // Quittung erstellen
         Receipt receipt = new Receipt(orderId, items, quantities, totalPrice, LocalDateTime.now());
 
         getContext().getLog().info("Processed order: {} x {}, total: €{}",
                 cmd.amount, cmd.product.name(), totalPrice);
 
-        // Quittung zurücksenden
         cmd.replyTo.tell(receipt);
 
         return this;

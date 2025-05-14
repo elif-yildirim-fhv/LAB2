@@ -6,14 +6,15 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import at.fhv.sysarch.lab2.ordersystem.OrderProcessor;
 
 public class FridgeWeightSensor extends AbstractBehavior<FridgeWeightSensor.FridgeWeightSensorCommand> {
 
     public interface FridgeWeightSensorCommand { }
 
     public static final class AvaliableWeightCommand implements FridgeWeightSensorCommand {
-        final ActorRef<PrepareOrder.PrepareOrderCommand> prepareOrder;
-        public AvaliableWeightCommand(ActorRef<PrepareOrder.PrepareOrderCommand> prepareOrder) {
+        final ActorRef<OrderProcessor.WeightSensorCommand> prepareOrder;
+        public AvaliableWeightCommand(ActorRef<OrderProcessor.WeightSensorCommand> prepareOrder) {
             this.prepareOrder = prepareOrder;
         }
     }
@@ -54,7 +55,7 @@ public class FridgeWeightSensor extends AbstractBehavior<FridgeWeightSensor.Frid
     }
 
     private Behavior<FridgeWeightSensorCommand> onAvailableWeight(AvaliableWeightCommand command){
-        command.prepareOrder.tell(new PrepareOrder.WeightFeedbackCommand(maxWeight - currentWeight));
+        command.prepareOrder.tell(new OrderProcessor.WeightSensorCommand(maxWeight - currentWeight));
         return this;
     }
 
