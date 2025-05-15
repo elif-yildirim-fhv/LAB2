@@ -8,7 +8,6 @@ import at.fhv.sysarch.lab2.homeautomation.Fridge.Fridge;
 import at.fhv.sysarch.lab2.homeautomation.devices.*;
 import at.fhv.sysarch.lab2.homeautomation.environment.TemperatureEnvironment;
 import at.fhv.sysarch.lab2.homeautomation.environment.WeatherEnvironment;
-import at.fhv.sysarch.lab2.homeautomation.shared.EnvironmentMode;
 import at.fhv.sysarch.lab2.homeautomation.shared.Temperature;
 import at.fhv.sysarch.lab2.homeautomation.shared.Weather;
 import at.fhv.sysarch.lab2.homeautomation.ui.UI;

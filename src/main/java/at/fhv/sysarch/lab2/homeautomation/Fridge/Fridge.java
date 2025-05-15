@@ -27,6 +27,11 @@ public class Fridge extends AbstractBehavior<Fridge.FridgeCommand> {
         }
     }
 
+    public enum Done implements FridgeCommand {
+        INSTANCE
+    }
+
+
     public static final class ConsumeProductCommand implements FridgeCommand {
         public final String productName;
         public final int amount;
@@ -190,7 +195,7 @@ public class Fridge extends AbstractBehavior<Fridge.FridgeCommand> {
                     OrderResponse.class,
                     response -> new AddProductCommand(product, 1, getContext().messageAdapter(
                             OperationResult.class,
-                            result -> null  // Ignoriere die Antwort
+                            result -> Done.INSTANCE  // ✅ Korrekt, kein null
                     ))
             )));
         }

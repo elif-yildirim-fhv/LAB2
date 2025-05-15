@@ -23,6 +23,11 @@ public class UI extends AbstractBehavior<Void> {
     private final ActorRef<Blinds.BlindsCommand> blinds;
     private final ActorRef<Fridge.FridgeCommand> fridge;
 
+    // Fix: Adapters als Member
+    private final ActorRef<Fridge.ProductsResponse> productPrinter;
+    private final ActorRef<Fridge.OrderHistoryResponse> orderHistoryPrinter;
+    private final ActorRef<Fridge.OperationResult> operationResultPrinter;
+
     public static Behavior<Void> create(
             ActorRef<TemperatureSensor.TemperatureCommand> tempSensor,
             ActorRef<AirCondition.AirConditionCommand> airCondition,
@@ -47,6 +52,29 @@ public class UI extends AbstractBehavior<Void> {
         this.mediaStation = mediaStation;
         this.blinds = blinds;
         this.fridge = fridge;
+
+        // FIX: messageAdapters im Actor-Thread erstellen
+        this.productPrinter = getContext().messageAdapter(Fridge.ProductsResponse.class, response -> {
+            System.out.println("== Products in Fridge ==");
+            response.products.forEach((product, quantity) ->
+                    System.out.printf("%s: %d pcs (%.2f€ / %.2fg)%n", product.name(), quantity, product.price(), product.weight()));
+            return null;
+        });
+
+        this.orderHistoryPrinter = getContext().messageAdapter(Fridge.OrderHistoryResponse.class, response -> {
+            System.out.println("== Order History ==");
+            response.orderHistory.forEach(order -> {
+                System.out.printf("Ordered %d x %s on %s, total: €%.2f%n",
+                        order.amount(), order.product().name(), order.receipt().timestamp(), order.receipt().totalPrice());
+            });
+            return null;
+        });
+
+        this.operationResultPrinter = getContext().messageAdapter(Fridge.OperationResult.class, result -> {
+            System.out.println("[FRIDGE] " + result.message);
+            return null;
+        });
+
         new Thread(this::runCommandLine).start();
         getContext().getLog().info("[UI] Started");
     }
@@ -197,7 +225,7 @@ public class UI extends AbstractBehavior<Void> {
                 double weight = Double.parseDouble(parts[4]);
                 int amount = Integer.parseInt(parts[5]);
                 Product product = new Product(name, price, weight);
-                fridge.tell(new Fridge.AddProductCommand(product, amount, createPrintReply()));
+                fridge.tell(new Fridge.AddProductCommand(product, amount, operationResultPrinter));
             }
             case "consume" -> {
                 if (parts.length < 4) {
@@ -206,38 +234,11 @@ public class UI extends AbstractBehavior<Void> {
                 }
                 String name = parts[2];
                 int amount = Integer.parseInt(parts[3]);
-                fridge.tell(new Fridge.ConsumeProductCommand(name, amount, createPrintReply()));
+                fridge.tell(new Fridge.ConsumeProductCommand(name, amount, operationResultPrinter));
             }
-            case "products" -> fridge.tell(new Fridge.GetProductsCommand(createProductPrinter()));
-            case "history" -> fridge.tell(new Fridge.GetOrderHistoryCommand(createOrderHistoryPrinter()));
+            case "products" -> fridge.tell(new Fridge.GetProductsCommand(productPrinter));
+            case "history" -> fridge.tell(new Fridge.GetOrderHistoryCommand(orderHistoryPrinter));
             default -> System.out.println("[CMD] Unknown fridge command");
         }
-    }
-
-    private ActorRef<Fridge.OperationResult> createPrintReply() {
-        return getContext().messageAdapter(Fridge.OperationResult.class, result -> {
-            System.out.println("[FRIDGE] " + result.message);
-            return null;
-        });
-    }
-
-    private ActorRef<Fridge.ProductsResponse> createProductPrinter() {
-        return getContext().messageAdapter(Fridge.ProductsResponse.class, response -> {
-            System.out.println("== Products in Fridge ==");
-            response.products.forEach((product, quantity) ->
-                    System.out.printf("%s: %d pcs (%.2f€ / %.2fg)%n", product.name(), quantity, product.price(), product.weight()));
-            return null;
-        });
-    }
-
-    private ActorRef<Fridge.OrderHistoryResponse> createOrderHistoryPrinter() {
-        return getContext().messageAdapter(Fridge.OrderHistoryResponse.class, response -> {
-            System.out.println("== Order History ==");
-            response.orderHistory.forEach(order -> {
-                System.out.printf("Ordered %d x %s on %s, total: €%.2f%n",
-                        order.amount(), order.product().name(), order.receipt().timestamp(), order.receipt().totalPrice());
-            });
-            return null;
-        });
     }
 }
