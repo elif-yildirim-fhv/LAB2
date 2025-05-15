@@ -1,25 +1,20 @@
 package at.fhv.sysarch.lab2.homeautomation.order;
 
-
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
+import akka.grpc.GrpcClientSettings;
 import at.fhv.sysarch.lab2.homeautomation.Fridge.Product;
 import at.fhv.sysarch.lab2.homeautomation.Fridge.Receipt;
-import at.fhv.sysarch.lab2.homeautomation.grpc.OrderRequest;
-import at.fhv.sysarch.lab2.homeautomation.grpc.OrderResponse;
-import at.fhv.sysarch.lab2.homeautomation.grpc.ProductInfo;
-import at.fhv.sysarch.lab2.ordersystem.OrderServiceImpl;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-
+import at.fhv.sysarch.lab2.homeautomation.grpc.*;
+import akka.stream.Materializer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletionStage;
 
-public class OrderServiceClient extends AbstractBehavior<OrderServiceClient.OrderClientCommand> {
+public class OrderServiceClientImpl extends AbstractBehavior<OrderServiceClientImpl.OrderClientCommand> {
 
     public interface OrderClientCommand {}
 
@@ -35,29 +30,23 @@ public class OrderServiceClient extends AbstractBehavior<OrderServiceClient.Orde
         }
     }
 
-    private final ManagedChannel channel;
-    //private final OrderServiceGrpc.OrderServiceBlockingStub blockingStub;
+    private final OrderService client;
+    private final Materializer materializer;
 
     public static Behavior<OrderClientCommand> create(String host, int port) {
-        return Behaviors.setup(context -> new OrderServiceClient(context, host, port));
+        return Behaviors.setup(context -> new OrderServiceClientImpl(context, host, port));
     }
 
-    private OrderServiceClient(ActorContext<OrderClientCommand> context, String host, int port) {
+    private OrderServiceClientImpl(ActorContext<OrderClientCommand> context, String host, int port) {
         super(context);
-        this.channel = ManagedChannelBuilder.forAddress(host, port)
-                .usePlaintext()
-                .build();
 
-        //this.blockingStub = OrderServiceImpl.newBlockingStub(channel);
+        GrpcClientSettings settings = GrpcClientSettings.connectToServiceAt(host, port, context.getSystem())
+                .withTls(false);
+
+        this.client = OrderServiceClient.create(settings, context.getSystem());
+        this.materializer = Materializer.matFromSystem(context.getSystem());
+
         getContext().getLog().info("OrderServiceClient connected to {}:{}", host, port);
-
-        context.getSystem().getWhenTerminated().thenAccept(done -> {
-            try {
-                channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-            } catch (Exception e) {
-                getContext().getLog().error("Error shutting down gRPC channel", e);
-            }
-        });
     }
 
     @Override
@@ -68,19 +57,24 @@ public class OrderServiceClient extends AbstractBehavior<OrderServiceClient.Orde
     }
 
     private Behavior<OrderClientCommand> onProcessOrder(ProcessOrderCommand cmd) {
-        try {
-            ProductInfo productInfo = ProductInfo.newBuilder()
-                    .setName(cmd.product.name())
-                    .setPrice(cmd.product.price())
-                    .setWeight(cmd.product.weight())
-                    .build();
+        ProductInfo productInfo = ProductInfo.newBuilder()
+                .setName(cmd.product.name())
+                .setPrice(cmd.product.price())
+                .setWeight(cmd.product.weight())
+                .build();
 
-            OrderRequest request = OrderRequest.newBuilder()
-                    .setProduct(productInfo)
-                    .setAmount(cmd.amount)
-                    .build();
+        OrderRequest request = OrderRequest.newBuilder()
+                .setProduct(productInfo)
+                .setAmount(cmd.amount)
+                .build();
 
-            OrderResponse response = blockingStub.processOrder(request);
+        CompletionStage<OrderResponse> responseFuture = client.processOrder(request);
+
+        responseFuture.whenComplete((response, throwable) -> {
+            if (throwable != null) {
+                getContext().getLog().error("Error processing order via Akka gRPC", throwable);
+                return;
+            }
 
             List<Product> items = new ArrayList<>();
             int[] quantities = new int[response.getQuantitiesCount()];
@@ -103,10 +97,7 @@ public class OrderServiceClient extends AbstractBehavior<OrderServiceClient.Orde
             );
 
             cmd.replyTo.tell(receipt);
-
-        } catch (Exception e) {
-            getContext().getLog().error("Error processing order via gRPC", e);
-        }
+        });
 
         return this;
     }
