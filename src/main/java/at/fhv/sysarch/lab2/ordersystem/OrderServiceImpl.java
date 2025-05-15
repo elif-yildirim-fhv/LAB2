@@ -1,47 +1,49 @@
 package at.fhv.sysarch.lab2.ordersystem;
 
 import akka.actor.typed.ActorRef;
+import akka.actor.typed.ActorSystem;
+import akka.actor.typed.javadsl.AskPattern;
 import at.fhv.sysarch.lab2.homeautomation.Fridge.Product;
+import at.fhv.sysarch.lab2.homeautomation.Fridge.Receipt;
 import at.fhv.sysarch.lab2.homeautomation.grpc.OrderRequest;
 import at.fhv.sysarch.lab2.homeautomation.grpc.OrderResponse;
 import at.fhv.sysarch.lab2.homeautomation.grpc.OrderService;
 import at.fhv.sysarch.lab2.homeautomation.grpc.ProductInfo;
 
+import java.time.Duration;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class OrderServiceImpl implements OrderService {
 
     private final ActorRef<OrderProcessor.OrderCommand> orderProcessor;
+    private final ActorSystem<Void> system;
 
-    public OrderServiceImpl(ActorRef<OrderProcessor.OrderCommand> orderProcessor) {
+    public OrderServiceImpl(ActorRef<OrderProcessor.OrderCommand> orderProcessor, ActorSystem<Void> system) {
         this.orderProcessor = orderProcessor;
+        this.system = system;
     }
 
     @Override
     public CompletionStage<OrderResponse> processOrder(OrderRequest request) {
-        Product product =
-                new at.fhv.sysarch.lab2.homeautomation.Fridge.Product(
-                        request.getProduct().getName(),
-                        request.getProduct().getPrice(),
-                        request.getProduct().getWeight()
-                );
-
-        CompletableFuture<at.fhv.sysarch.lab2.homeautomation.Fridge.Receipt> future =
-                new CompletableFuture<>();
-
-        orderProcessor.tell(
-                new OrderProcessor.ProcessOrderCommand(
-                        product,
-                        request.getAmount(),
-                        receipt -> {
-                            future.complete(receipt);
-                        }
-                )
+        Product product = new Product(
+                request.getProduct().getName(),
+                request.getProduct().getPrice(),
+                request.getProduct().getWeight()
         );
 
-        future.thenAccept(receipt -> {
+        CompletionStage<Receipt> receiptFuture = AskPattern.ask(
+                orderProcessor,
+                replyTo -> new OrderProcessor.ProcessOrderCommand(
+                        product,
+                        request.getAmount(),
+                        replyTo
+                ),
+                Duration.ofSeconds(3),
+                system.scheduler()
+        );
+
+        return receiptFuture.thenApply(receipt -> {
             OrderResponse.Builder responseBuilder = OrderResponse.newBuilder()
                     .setOrderId(receipt.orderId())
                     .setTotalPrice(receipt.totalPrice())
@@ -58,8 +60,8 @@ public class OrderServiceImpl implements OrderService {
                 responseBuilder.addItems(productInfo);
                 responseBuilder.addQuantities(receipt.quantities()[i]);
             }
-        });
-        return null;
-    }
 
+            return responseBuilder.build();
+        });
+    }
 }
