@@ -2,68 +2,84 @@ package at.fhv.sysarch.lab2.homeautomation.devices;
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
-import akka.actor.typed.PostStop;
-import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.actor.typed.javadsl.Receive;
+import akka.actor.typed.javadsl.*;
+import at.fhv.sysarch.lab2.homeautomation.environment.TemperatureEnvironment;
+import at.fhv.sysarch.lab2.homeautomation.shared.EnvironmentMode;
+import at.fhv.sysarch.lab2.homeautomation.shared.Temperature;
+
+import java.time.Duration;
 
 public class TemperatureSensor extends AbstractBehavior<TemperatureSensor.TemperatureCommand> {
+
     public interface TemperatureCommand {}
 
-    public static final class ReadTemperature implements TemperatureCommand {
-        final ActorRef<TemperatureResponse> replyTo;
+    public static final class DoRequestTemperature implements TemperatureCommand {}
+    public static final class ReceiveTemperature implements TemperatureCommand {
+        public final Temperature temperature;
 
-        public ReadTemperature(ActorRef<TemperatureResponse> replyTo) {
-            this.replyTo = replyTo;
+        public ReceiveTemperature(Temperature temperature) {
+            this.temperature = temperature;
         }
     }
 
-    public static final class TemperatureResponse {
-        final double value;
-        final String unit;
+    public static final class SetMode implements TemperatureCommand {
+        public final EnvironmentMode mode;
 
-        public TemperatureResponse(double value, String unit) {
-            this.value = value;
-            this.unit = unit;
+        public SetMode(EnvironmentMode mode) {
+            this.mode = mode;
         }
     }
 
-    private final String groupId;
-    private final String deviceId;
-    private double currentTemperature = 20.0;
+    public static Behavior<TemperatureCommand> create(
+            ActorRef<TemperatureEnvironment.TemperatureEnvironmentCommand> environment,
+            ActorRef<AirCondition.AirConditionCommand> airCondition) {
+        return Behaviors.setup(context ->
+                Behaviors.withTimers(timers ->
+                        new TemperatureSensor(context, environment, airCondition, timers)));
+    }
 
-    public TemperatureSensor(ActorContext<TemperatureCommand> context, String groupId, String deviceId) {
+    private final ActorRef<TemperatureEnvironment.TemperatureEnvironmentCommand> environment;
+    private final ActorRef<AirCondition.AirConditionCommand> airCondition;
+    private EnvironmentMode mode = EnvironmentMode.INTERNAL;
+
+    private TemperatureSensor(ActorContext<TemperatureCommand> context,
+                              ActorRef<TemperatureEnvironment.TemperatureEnvironmentCommand> environment,
+                              ActorRef<AirCondition.AirConditionCommand> airCondition,
+                              TimerScheduler<TemperatureCommand> timers) {
         super(context);
-        this.groupId = groupId;
-        this.deviceId = deviceId;
-        getContext().getLog().info("TemperatureSensor {}-{} started", groupId, deviceId);
-    }
-
-    public static Behavior<TemperatureCommand> create(String groupId, String deviceId) {
-        return Behaviors.setup(context -> new TemperatureSensor(context, groupId, deviceId));
-    }
-
-    public void updateTemperature(double newTemp) {
-        this.currentTemperature = newTemp;
+        this.environment = environment;
+        this.airCondition = airCondition;
+        timers.startTimerAtFixedRate(new DoRequestTemperature(), Duration.ofSeconds(30));
+        getContext().getLog().info("TemperatureSensor started and polling environment");
     }
 
     @Override
     public Receive<TemperatureCommand> createReceive() {
         return newReceiveBuilder()
-                .onMessage(ReadTemperature.class, this::onReadTemperature)
-                .onSignal(PostStop.class, signal -> onPostStop())
+                .onMessage(DoRequestTemperature.class, this::onRequestTemperature)
+                .onMessage(ReceiveTemperature.class, this::onReceiveTemperature)
+                .onMessage(SetMode.class, this::onSetMode)
                 .build();
     }
 
-    private Behavior<TemperatureCommand> onReadTemperature(ReadTemperature cmd) {
-        cmd.replyTo.tell(new TemperatureResponse(currentTemperature, "°C"));
-        getContext().getLog().debug("Temperature reading: {}°C", currentTemperature);
+    private Behavior<TemperatureCommand> onRequestTemperature(DoRequestTemperature msg) {
+        if (mode == EnvironmentMode.INTERNAL) {
+            environment.tell(new TemperatureEnvironment.ReceiveTemperatureRequest(getContext().getSelf()));
+        } else {
+            getContext().getLog().info("External mode: skipping internal temperature request");
+        }
         return this;
     }
 
-    private Behavior<TemperatureCommand> onPostStop() {
-        getContext().getLog().info("TemperatureSensor actor {}-{} stopped", groupId, deviceId);
+    private Behavior<TemperatureCommand> onReceiveTemperature(ReceiveTemperature msg) {
+        getContext().getLog().info("[SENSOR] Measured temperature: {}", msg.temperature);
+        airCondition.tell(new AirCondition.ReceiveTemperature(msg.temperature));
+        return this;
+    }
+
+    private Behavior<TemperatureCommand> onSetMode(SetMode msg) {
+        this.mode = msg.mode;
+        getContext().getLog().info("TemperatureSensor mode set to: {}", mode);
         return this;
     }
 }

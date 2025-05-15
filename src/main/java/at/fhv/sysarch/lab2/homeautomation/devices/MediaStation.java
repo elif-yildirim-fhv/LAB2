@@ -2,92 +2,62 @@ package at.fhv.sysarch.lab2.homeautomation.devices;
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
-import akka.actor.typed.PostStop;
-import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.actor.typed.javadsl.Receive;
+import akka.actor.typed.javadsl.*;
+import at.fhv.sysarch.lab2.homeautomation.shared.Movie;
 
-public class MediaStation extends AbstractBehavior<MediaStation.MediaCommand> {
-	public interface MediaCommand {}
+public class MediaStation extends AbstractBehavior<MediaStation.MediaStationCommand> {
 
-	public static final class PlayMovie implements MediaCommand {
-		final String title;
-		final ActorRef<OperationResult> replyTo;
+    public interface MediaStationCommand {}
 
-		public PlayMovie(String title, ActorRef<OperationResult> replyTo) {
-			this.title = title;
-			this.replyTo = replyTo;
-		}
-	}
+    public static final class TurnMediaStationOnCommand implements MediaStationCommand {
+        public final Movie movie;
+        public TurnMediaStationOnCommand(Movie movie) {
+            this.movie = movie;
+        }
+    }
 
-	public static final class StopMovie implements MediaCommand {
-		final ActorRef<OperationResult> replyTo;
+    public static final class TurnMediaStationOffCommand implements MediaStationCommand {}
 
-		public StopMovie(ActorRef<OperationResult> replyTo) {
-			this.replyTo = replyTo;
-		}
-	}
+    private final ActorRef<Blinds.BlindsCommand> blinds;
+    private Movie currentMovie;
 
-	public static final class OperationResult {
-		final boolean success;
-		final String message;
+    public static Behavior<MediaStationCommand> create(ActorRef<Blinds.BlindsCommand> blinds) {
+        return Behaviors.setup(context -> new MediaStation(context, blinds));
+    }
 
-		public OperationResult(boolean success, String message) {
-			this.success = success;
-			this.message = message;
-		}
-	}
+    private MediaStation(ActorContext<MediaStationCommand> context, ActorRef<Blinds.BlindsCommand> blinds) {
+        super(context);
+        this.blinds = blinds;
+        context.getLog().info("[DEVICE] MediaStation started");
+    }
 
-	private final String groupId;
-	private final String deviceId;
-	private String currentMovie = null;
+    @Override
+    public Receive<MediaStationCommand> createReceive() {
+        return newReceiveBuilder()
+                .onMessage(TurnMediaStationOnCommand.class, this::onTurnOn)
+                .onMessage(TurnMediaStationOffCommand.class, this::onTurnOff)
+                .build();
+    }
 
-	public MediaStation(ActorContext<MediaCommand> context, String groupId, String deviceId) {
-		super(context);
-		this.groupId = groupId;
-		this.deviceId = deviceId;
-		getContext().getLog().info("MediaStation {}-{} started", groupId, deviceId);
-	}
+    private Behavior<MediaStationCommand> onTurnOn(TurnMediaStationOnCommand cmd) {
+        if (currentMovie == null) {
+            currentMovie = cmd.movie;
+            getContext().getLog().info("[DEVICE] Now playing: {}", currentMovie.title());
+            blinds.tell(new Blinds.MediaStationStatusChangedCommand(true));
+        } else {
+            getContext().getLog().info("[DEVICE] Already playing: {}", currentMovie.title());
+        }
+        return this;
+    }
 
-	public static Behavior<MediaCommand> create(String groupId, String deviceId) {
-		return Behaviors.setup(context -> new MediaStation(context, groupId, deviceId));
-	}
-
-	@Override
-	public Receive<MediaCommand> createReceive() {
-		return newReceiveBuilder()
-				.onMessage(PlayMovie.class, this::onPlayMovie)
-				.onMessage(StopMovie.class, this::onStopMovie)
-				.onSignal(PostStop.class, signal -> onPostStop())
-				.build();
-	}
-
-	private Behavior<MediaCommand> onPlayMovie(PlayMovie cmd) {
-		if (currentMovie != null) {
-			cmd.replyTo.tell(new OperationResult(false,
-					"Cannot play " + cmd.title + ". " + currentMovie + " is already playing"));
-		} else {
-			currentMovie = cmd.title;
-			getContext().getLog().info("Now playing: {}", cmd.title);
-			cmd.replyTo.tell(new OperationResult(true, "Now playing: " + cmd.title));
-		}
-		return this;
-	}
-
-	private Behavior<MediaCommand> onStopMovie(StopMovie cmd) {
-		if (currentMovie == null) {
-			cmd.replyTo.tell(new OperationResult(false, "No movie is currently playing"));
-		} else {
-			getContext().getLog().info("Stopping movie: {}", currentMovie);
-			cmd.replyTo.tell(new OperationResult(true, "Stopped: " + currentMovie));
-			currentMovie = null;
-		}
-		return this;
-	}
-
-	private Behavior<MediaCommand> onPostStop() {
-		getContext().getLog().info("MediaStation actor {}-{} stopped", groupId, deviceId);
-		return this;
-	}
+    private Behavior<MediaStationCommand> onTurnOff(TurnMediaStationOffCommand cmd) {
+        if (currentMovie != null) {
+            getContext().getLog().info("[DEVICE] Stopping movie: {}", currentMovie.title());
+            currentMovie = null;
+            blinds.tell(new Blinds.MediaStationStatusChangedCommand(false));
+        } else {
+            getContext().getLog().info("[DEVICE] No movie is playing");
+        }
+        return this;
+    }
 }

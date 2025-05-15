@@ -1,66 +1,68 @@
 package at.fhv.sysarch.lab2.homeautomation.devices;
 
 import akka.actor.typed.Behavior;
-import akka.actor.typed.PostStop;
-import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.actor.typed.javadsl.Receive;
+import akka.actor.typed.javadsl.*;
+import at.fhv.sysarch.lab2.homeautomation.shared.BlindsPosition;
 
 public class Blinds extends AbstractBehavior<Blinds.BlindsCommand> {
-	public interface BlindsCommand {}
 
-	public static final class ControlBlinds implements BlindsCommand {
-		final boolean isSunny;
-		final boolean isMoviePlaying;
+    // --- Nachrichten ---
+    public interface BlindsCommand {}
 
-		public ControlBlinds(boolean isSunny, boolean isMoviePlaying) {
-			this.isSunny = isSunny;
-			this.isMoviePlaying = isMoviePlaying;
-		}
-	}
+    public static final class MediaStationStatusChangedCommand implements BlindsCommand {
+        public final boolean isMoviePlaying;
+        public MediaStationStatusChangedCommand(boolean isMoviePlaying) {
+            this.isMoviePlaying = isMoviePlaying;
+        }
+    }
 
-	private final String groupId;
-	private final String deviceId;
-	private boolean isClosed = false;
+    public static final class WeatherChangedCommand implements BlindsCommand {
+        public final boolean isSunny;
+        public WeatherChangedCommand(boolean isSunny) {
+            this.isSunny = isSunny;
+        }
+    }
 
-	public Blinds(ActorContext<BlindsCommand> context, String groupId, String deviceId) {
-		super(context);
-		this.groupId = groupId;
-		this.deviceId = deviceId;
-		getContext().getLog().info("Blinds {}-{} started", groupId, deviceId);
-	}
+    // --- Zustand ---
+    private boolean isMoviePlaying = false;
+    private boolean isSunny = true;
+    private BlindsPosition blindsPosition = BlindsPosition.UP;
 
-	public static Behavior<BlindsCommand> create(String groupId, String deviceId) {
-		return Behaviors.setup(context -> new Blinds(context, groupId, deviceId));
-	}
+    // --- Factory ---
+    public static Behavior<BlindsCommand> create() {
+        return Behaviors.setup(Blinds::new);
+    }
 
-	@Override
-	public Receive<BlindsCommand> createReceive() {
-		return newReceiveBuilder()
-				.onMessage(ControlBlinds.class, this::onControlCommand)
-				.onSignal(PostStop.class, signal -> onPostStop())
-				.build();
-	}
+    private Blinds(ActorContext<BlindsCommand> context) {
+        super(context);
+        context.getLog().info("[DEVICE] Blinds started");
+    }
 
-	private Behavior<BlindsCommand> onControlCommand(ControlBlinds cmd) {
-		boolean shouldClose = cmd.isSunny || cmd.isMoviePlaying;
+    @Override
+    public Receive<BlindsCommand> createReceive() {
+        return newReceiveBuilder()
+                .onMessage(MediaStationStatusChangedCommand.class, this::onMediaChanged)
+                .onMessage(WeatherChangedCommand.class, this::onWeatherChanged)
+                .build();
+    }
 
-		if (shouldClose && !isClosed) {
-			getContext().getLog().info("Closing blinds (Sunny: {}, Movie: {})",
-					cmd.isSunny, cmd.isMoviePlaying);
-			isClosed = true;
-		} else if (!shouldClose && isClosed) {
-			getContext().getLog().info("Opening blinds (Sunny: {}, Movie: {})",
-					cmd.isSunny, cmd.isMoviePlaying);
-			isClosed = false;
-		}
+    private Behavior<BlindsCommand> onMediaChanged(MediaStationStatusChangedCommand msg) {
+        isMoviePlaying = msg.isMoviePlaying;
+        updateBlinds();
+        return this;
+    }
 
-		return this;
-	}
+    private Behavior<BlindsCommand> onWeatherChanged(WeatherChangedCommand msg) {
+        isSunny = msg.isSunny;
+        updateBlinds();
+        return this;
+    }
 
-	private Behavior<BlindsCommand> onPostStop() {
-		getContext().getLog().info("Blinds actor {}-{} stopped", groupId, deviceId);
-		return this;
-	}
+    private void updateBlinds() {
+        BlindsPosition newPosition = (isSunny || isMoviePlaying) ? BlindsPosition.DOWN : BlindsPosition.UP;
+        if (newPosition != blindsPosition) {
+            blindsPosition = newPosition;
+            getContext().getLog().info("[DEVICE] Blinds moved to {}", blindsPosition);
+        }
+    }
 }

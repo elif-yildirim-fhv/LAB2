@@ -2,70 +2,77 @@ package at.fhv.sysarch.lab2.homeautomation.devices;
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
-import akka.actor.typed.PostStop;
-import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.actor.typed.javadsl.Receive;
+import akka.actor.typed.javadsl.*;
+import at.fhv.sysarch.lab2.homeautomation.environment.WeatherEnvironment;
+import at.fhv.sysarch.lab2.homeautomation.shared.Weather;
 
-public class WeatherSensor extends AbstractBehavior<WeatherSensor.WeatherCommand> {
-	public interface WeatherCommand {}
+import java.time.Duration;
 
-	public static final class ReadWeather implements WeatherCommand {
-		final ActorRef<WeatherResponse> replyTo;
+public class WeatherSensor extends AbstractBehavior<WeatherSensor.WeatherSensorCommand> {
 
-		public ReadWeather(ActorRef<WeatherResponse> replyTo) {
-			this.replyTo = replyTo;
-		}
-	}
+    // --- Nachrichteninterface ---
+    public interface WeatherSensorCommand {}
 
-	public static final class WeatherResponse {
-		final String condition;
-		final boolean isSunny;
+    // Intern vom Actor selbst genutzt (alle 15 Sek.)
+    public static final class DoRequestWeather implements WeatherSensorCommand {}
 
-		public WeatherResponse(String condition, boolean isSunny) {
-			this.condition = condition;
-			this.isSunny = isSunny;
-		}
-	}
+    // Externe Nachricht – für WeatherEnvironment **und** MQTT
+    public static final class ReceiveWeather implements WeatherSensorCommand {
+        public final Weather weather;
 
-	private final String groupId;
-	private final String deviceId;
-	private String currentCondition = "sunny";
-	private boolean isSunny = true;
+        public ReceiveWeather(Weather weather) {
+            this.weather = weather;
+        }
+    }
 
-	public WeatherSensor(ActorContext<WeatherCommand> context, String groupId, String deviceId) {
-		super(context);
-		this.groupId = groupId;
-		this.deviceId = deviceId;
-		getContext().getLog().info("WeatherSensor {}-{} started", groupId, deviceId);
-	}
+    // --- Felder ---
+    private final ActorRef<WeatherEnvironment.WeatherEnvironmentCommand> environment;
+    private final ActorRef<Blinds.BlindsCommand> blinds;
+    private Weather lastWeather = null;
 
-	public static Behavior<WeatherCommand> create(String groupId, String deviceId) {
-		return Behaviors.setup(context -> new WeatherSensor(context, groupId, deviceId));
-	}
+    // --- Factory ---
+    public static Behavior<WeatherSensorCommand> create(
+            ActorRef<WeatherEnvironment.WeatherEnvironmentCommand> environment,
+            ActorRef<Blinds.BlindsCommand> blinds) {
+        return Behaviors.setup(context ->
+                Behaviors.withTimers(timers ->
+                        new WeatherSensor(context, environment, blinds, timers)));
+    }
 
-	public void updateWeather(String condition, boolean isSunny) {
-		this.currentCondition = condition;
-		this.isSunny = isSunny;
-	}
+    private WeatherSensor(
+            ActorContext<WeatherSensorCommand> context,
+            ActorRef<WeatherEnvironment.WeatherEnvironmentCommand> environment,
+            ActorRef<Blinds.BlindsCommand> blinds,
+            TimerScheduler<WeatherSensorCommand> timers) {
+        super(context);
+        this.environment = environment;
+        this.blinds = blinds;
 
-	@Override
-	public Receive<WeatherCommand> createReceive() {
-		return newReceiveBuilder()
-				.onMessage(ReadWeather.class, this::onReadWeather)
-				.onSignal(PostStop.class, signal -> onPostStop())
-				.build();
-	}
+        timers.startTimerAtFixedRate(new DoRequestWeather(), Duration.ofSeconds(30));
+        getContext().getLog().info("WeatherSensor started and polling environment");
+    }
 
-	private Behavior<WeatherCommand> onReadWeather(ReadWeather cmd) {
-		cmd.replyTo.tell(new WeatherResponse(currentCondition, isSunny));
-		getContext().getLog().debug("Weather reading: {}, sunny: {}", currentCondition, isSunny);
-		return this;
-	}
+    @Override
+    public Receive<WeatherSensorCommand> createReceive() {
+        return newReceiveBuilder()
+                .onMessage(DoRequestWeather.class, this::onRequestWeather)
+                .onMessage(ReceiveWeather.class, this::onReceiveWeather)
+                .build();
+    }
 
-	private Behavior<WeatherCommand> onPostStop() {
-		getContext().getLog().info("WeatherSensor actor {}-{} stopped", groupId, deviceId);
-		return this;
-	}
+    private Behavior<WeatherSensorCommand> onRequestWeather(DoRequestWeather msg) {
+        environment.tell(new WeatherEnvironment.WeatherRequest(getContext().getSelf()));
+        return this;
+    }
+
+    private Behavior<WeatherSensorCommand> onReceiveWeather(ReceiveWeather msg) {
+        if (msg.weather != lastWeather) {
+            boolean isSunny = msg.weather == Weather.SUNNY;
+            blinds.tell(new Blinds.WeatherChangedCommand(isSunny));
+            lastWeather = msg.weather;
+        }
+
+        getContext().getLog().info("[SENSOR] Measured weather: {}", msg.weather);
+        return this;
+    }
 }

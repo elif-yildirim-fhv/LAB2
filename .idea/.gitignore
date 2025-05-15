@@ -1,8 +1,25 @@
-# Default ignored files
-/shelf/
-/workspace.xml
-# Editor-based HTTP Client requests
-/httpRequests/
-# Datasource local storage ignored files
-/dataSources/
-/dataSources.local.xml
+# Gradle cache & build output
+.gradle/
+build/
+
+# IntelliJ IDEA
+*.iml
+.idea/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# Java compiled classes
+*.class
+
+# Logfiles
+*.log
+
+# OS-spezifisch
+.DS_Store
+Thumbs.db

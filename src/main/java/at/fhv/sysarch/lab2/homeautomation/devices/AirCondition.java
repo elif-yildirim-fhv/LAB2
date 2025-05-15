@@ -1,87 +1,67 @@
 package at.fhv.sysarch.lab2.homeautomation.devices;
 
 import akka.actor.typed.Behavior;
-import akka.actor.typed.PostStop;
-import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.actor.typed.javadsl.Receive;
+import akka.actor.typed.javadsl.*;
+import at.fhv.sysarch.lab2.homeautomation.shared.Temperature;
 
 public class AirCondition extends AbstractBehavior<AirCondition.AirConditionCommand> {
+
     public interface AirConditionCommand {}
 
+    // Temperatur empfangen
+    public static final class ReceiveTemperature implements AirConditionCommand {
+        public final Temperature temperature;
+
+        public ReceiveTemperature(Temperature temperature) {
+            this.temperature = temperature;
+        }
+    }
+
+    // Optional: externe Steuerung (falls gewünscht)
     public static final class PowerAirCondition implements AirConditionCommand {
-        final boolean on;
-
-        public PowerAirCondition(boolean on) {
-            this.on = on;
+        public final boolean powerOn;
+        public PowerAirCondition(boolean powerOn) {
+            this.powerOn = powerOn;
         }
     }
 
-    public static final class EnrichedTemperature implements AirConditionCommand {
-        final double value;
-        final String unit;
+    private boolean isActive = false;
 
-        public EnrichedTemperature(double value, String unit) {
-            this.value = value;
-            this.unit = unit;
-        }
+    public static Behavior<AirConditionCommand> create() {
+        return Behaviors.setup(AirCondition::new);
     }
 
-    private final String groupId;
-    private final String deviceId;
-    private boolean isOn = false;
-    private final double activationThreshold = 20.0; // Celsius
-
-    public AirCondition(ActorContext<AirConditionCommand> context, String groupId, String deviceId) {
+    private AirCondition(ActorContext<AirConditionCommand> context) {
         super(context);
-        this.groupId = groupId;
-        this.deviceId = deviceId;
-        getContext().getLog().info("AirCondition {}-{} started", groupId, deviceId);
-    }
-
-    public static Behavior<AirConditionCommand> create(String groupId, String deviceId) {
-        return Behaviors.setup(context -> new AirCondition(context, groupId, deviceId));
+        context.getLog().info("AirCondition started");
     }
 
     @Override
     public Receive<AirConditionCommand> createReceive() {
         return newReceiveBuilder()
-                .onMessage(EnrichedTemperature.class, this::onTemperatureUpdate)
-                .onMessage(PowerAirCondition.class, this::onPowerCommand)
-                .onSignal(PostStop.class, signal -> onPostStop())
+                .onMessage(ReceiveTemperature.class, this::onReceiveTemperature)
+                .onMessage(PowerAirCondition.class, this::onPowerToggle)
                 .build();
     }
 
-    private Behavior<AirConditionCommand> onTemperatureUpdate(EnrichedTemperature temp) {
-        if (!"°C".equals(temp.unit)) {
-            getContext().getLog().warn("Received temperature in unsupported unit: {}", temp.unit);
-            return this;
-        }
+    private Behavior<AirConditionCommand> onReceiveTemperature(ReceiveTemperature msg) {
+        double value = msg.temperature.value();
+        getContext().getLog().info("[DEVICE] Received temperature: {}", value);
 
-        boolean shouldBeOn = temp.value > activationThreshold;
-
-        if (shouldBeOn && !isOn) {
-            getContext().getLog().info("Turning AC ON (Temperature: {}°C)", temp.value);
-            isOn = true;
-        } else if (!shouldBeOn && isOn) {
-            getContext().getLog().info("Turning AC OFF (Temperature: {}°C)", temp.value);
-            isOn = false;
+        if (value >= 20 && !isActive) {
+            isActive = true;
+            getContext().getLog().info("[DEVICE] AirCondition activated (>= 20°C)");
+        } else if (value < 20 && isActive) {
+            isActive = false;
+            getContext().getLog().info("[DEVICE] AirCondition deactivated (< 20°C)");
         }
 
         return this;
     }
 
-    private Behavior<AirConditionCommand> onPowerCommand(PowerAirCondition cmd) {
-        if (cmd.on != isOn) {
-            isOn = cmd.on;
-            getContext().getLog().info("AC manually turned {}", isOn ? "ON" : "OFF");
-        }
-        return this;
-    }
-
-    private Behavior<AirConditionCommand> onPostStop() {
-        getContext().getLog().info("AirCondition actor {}-{} stopped", groupId, deviceId);
+    private Behavior<AirConditionCommand> onPowerToggle(PowerAirCondition msg) {
+        isActive = msg.powerOn;
+        getContext().getLog().info("[DEVICE] AirCondition manually turned {}", isActive ? "ON" : "OFF");
         return this;
     }
 }
