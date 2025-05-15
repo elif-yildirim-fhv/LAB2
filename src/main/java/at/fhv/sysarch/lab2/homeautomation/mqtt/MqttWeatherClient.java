@@ -8,20 +8,17 @@ import at.fhv.sysarch.lab2.homeautomation.devices.TemperatureSensor;
 import at.fhv.sysarch.lab2.homeautomation.devices.WeatherSensor;
 import at.fhv.sysarch.lab2.homeautomation.shared.Temperature;
 import at.fhv.sysarch.lab2.homeautomation.shared.Weather;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 public class MqttWeatherClient extends AbstractBehavior<MqttWeatherClient.MqttCommand> {
 
 	// --- Nachrichten ---
-	public interface MqttCommand {
-	}
-
-	public static final class StartListening implements MqttCommand {
-	}
-
-	public static final class StopListening implements MqttCommand {
-	}
+	public interface MqttCommand {}
+	public static final class StartListening implements MqttCommand {}
+	public static final class StopListening implements MqttCommand {}
 
 	private static final class MqttMessageReceived implements MqttCommand {
 		final String topic;
@@ -42,19 +39,20 @@ public class MqttWeatherClient extends AbstractBehavior<MqttWeatherClient.MqttCo
 	private final MqttClient mqttClient;
 	private final ActorRef<TemperatureSensor.TemperatureCommand> tempSensor;
 	private final ActorRef<WeatherSensor.WeatherSensorCommand> weatherSensor;
-
 	private boolean isListening = false;
 
-	// Factory-Methode
+	private static final ObjectMapper objectMapper = new ObjectMapper();
+
 	public static Behavior<MqttCommand> create(
 			ActorRef<TemperatureSensor.TemperatureCommand> tempSensor,
 			ActorRef<WeatherSensor.WeatherSensorCommand> weatherSensor) {
 		return Behaviors.setup(context -> new MqttWeatherClient(context, tempSensor, weatherSensor));
 	}
 
-	private MqttWeatherClient(ActorContext<MqttCommand> context,
-							  ActorRef<TemperatureSensor.TemperatureCommand> tempSensor,
-							  ActorRef<WeatherSensor.WeatherSensorCommand> weatherSensor) {
+	private MqttWeatherClient(
+			ActorContext<MqttCommand> context,
+			ActorRef<TemperatureSensor.TemperatureCommand> tempSensor,
+			ActorRef<WeatherSensor.WeatherSensorCommand> weatherSensor) {
 
 		super(context);
 		this.tempSensor = tempSensor;
@@ -65,10 +63,9 @@ public class MqttWeatherClient extends AbstractBehavior<MqttWeatherClient.MqttCo
 			client = new MqttClient(BROKER_URL, CLIENT_ID, new MemoryPersistence());
 			MqttConnectOptions options = new MqttConnectOptions();
 			options.setCleanSession(true);
-			options.setConnectionTimeout(10);
+			options.setConnectionTimeout(30);
 			client.connect(options);
 
-			// Callback für eingehende Nachrichten
 			client.setCallback(new MqttCallback() {
 				@Override
 				public void connectionLost(Throwable cause) {
@@ -83,7 +80,7 @@ public class MqttWeatherClient extends AbstractBehavior<MqttWeatherClient.MqttCo
 
 				@Override
 				public void deliveryComplete(IMqttDeliveryToken token) {
-					// Ignorieren, da wir nur empfangen
+					// No publishing
 				}
 			});
 
@@ -137,18 +134,18 @@ public class MqttWeatherClient extends AbstractBehavior<MqttWeatherClient.MqttCo
 	private Behavior<MqttCommand> onMessageReceived(MqttMessageReceived msg) {
 		try {
 			if (msg.topic.equals(TOPIC_TEMPERATURE)) {
-				double temperature = Double.parseDouble(msg.message);
+				JsonNode root = objectMapper.readTree(msg.message);
+				double temperature = root.get("temperature").asDouble();
 				tempSensor.tell(new TemperatureSensor.ReceiveTemperature(new Temperature("Celsius", temperature)));
 			} else if (msg.topic.equals(TOPIC_WEATHER)) {
 				Weather weather = msg.message.equalsIgnoreCase("sunny") ? Weather.SUNNY : Weather.RAINY;
 				weatherSensor.tell(new WeatherSensor.ReceiveWeather(weather));
 			}
-		} catch (NumberFormatException e) {
-			getContext().getLog().error("Failed to parse temperature value: {}", msg.message);
+		} catch (Exception e) {
+			getContext().getLog().error("Failed to parse temperature JSON: {}", msg.message, e);
 		}
 		return this;
 	}
-
 
 	private Behavior<MqttCommand> onPostStop() {
 		if (mqttClient != null) {
