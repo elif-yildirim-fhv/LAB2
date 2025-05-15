@@ -8,6 +8,8 @@ import at.fhv.sysarch.lab2.homeautomation.devices.*;
 import at.fhv.sysarch.lab2.homeautomation.shared.EnvironmentMode;
 import at.fhv.sysarch.lab2.homeautomation.shared.Movie;
 import at.fhv.sysarch.lab2.homeautomation.shared.Temperature;
+import at.fhv.sysarch.lab2.homeautomation.Fridge.Fridge;
+import at.fhv.sysarch.lab2.homeautomation.Fridge.Product;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -19,14 +21,16 @@ public class UI extends AbstractBehavior<Void> {
     private final ActorRef<AirCondition.AirConditionCommand> airCondition;
     private final ActorRef<MediaStation.MediaStationCommand> mediaStation;
     private final ActorRef<Blinds.BlindsCommand> blinds;
+    private final ActorRef<Fridge.FridgeCommand> fridge;
 
     public static Behavior<Void> create(
             ActorRef<TemperatureSensor.TemperatureCommand> tempSensor,
             ActorRef<AirCondition.AirConditionCommand> airCondition,
             ActorRef<MediaStation.MediaStationCommand> mediaStation,
-            ActorRef<Blinds.BlindsCommand> blinds
+            ActorRef<Blinds.BlindsCommand> blinds,
+            ActorRef<Fridge.FridgeCommand> fridge
     ) {
-        return Behaviors.setup(context -> new UI(context, tempSensor, airCondition, mediaStation, blinds));
+        return Behaviors.setup(context -> new UI(context, tempSensor, airCondition, mediaStation, blinds, fridge));
     }
 
     private UI(
@@ -34,13 +38,15 @@ public class UI extends AbstractBehavior<Void> {
             ActorRef<TemperatureSensor.TemperatureCommand> tempSensor,
             ActorRef<AirCondition.AirConditionCommand> airCondition,
             ActorRef<MediaStation.MediaStationCommand> mediaStation,
-            ActorRef<Blinds.BlindsCommand> blinds
+            ActorRef<Blinds.BlindsCommand> blinds,
+            ActorRef<Fridge.FridgeCommand> fridge
     ) {
         super(context);
         this.tempSensor = tempSensor;
         this.airCondition = airCondition;
         this.mediaStation = mediaStation;
         this.blinds = blinds;
+        this.fridge = fridge;
         new Thread(this::runCommandLine).start();
         getContext().getLog().info("[UI] Started");
     }
@@ -61,17 +67,20 @@ public class UI extends AbstractBehavior<Void> {
         Scanner scanner = new Scanner(System.in);
         String input;
 
-        System.out.println("==== Home Automation Console ====");
+        System.out.println("<<<< Home Automation Console >>>>");
         System.out.println("Commands:");
-        System.out.println("  temp <value>              -> simulate temperature reading");
-        System.out.println("  ac on/off                 -> turn air condition ON/OFF");
-        System.out.println("  media on <movie name>     -> start movie on MediaStation");
-        System.out.println("  media off                 -> stop MediaStation");
-        System.out.println("  blinds movie <on/off>     -> simulate MediaState for blinds");
+        System.out.println("  temp <value> -> simulate temperature reading");
+        System.out.println("  ac on/off -> turn air condition ON/OFF");
+        System.out.println("  media on <movie name> -> start movie on MediaStation");
+        System.out.println("  media off -> stop MediaStation");
+        System.out.println("  blinds movie <on/off> -> simulate MediaState for blinds");
         System.out.println("  blinds weather <sun/rain> -> simulate weather for blinds");
         System.out.println("  env temp <internal/external> -> switch temperature mode");
-        System.out.println("  quit                      -> exit UI");
-        System.out.println("=================================");
+        System.out.println("  fridge add <name> <price> <weight> <amount> -> add product");
+        System.out.println("  fridge consume <name> <amount>  -> consume product");
+        System.out.println("  fridge products -> list all products");
+        System.out.println("  fridge history   -> show order history");
+        System.out.println("  quit  -> exit UI");
 
         while (scanner.hasNextLine()) {
             input = scanner.nextLine().trim();
@@ -86,6 +95,7 @@ public class UI extends AbstractBehavior<Void> {
                 case "media" -> handleMedia(parts);
                 case "blinds" -> handleBlinds(parts);
                 case "env" -> handleEnv(parts);
+                case "fridge" -> handleFridge(parts);
                 case "quit" -> {
                     System.out.println("[CMD] Shutting down UI...");
                     return;
@@ -169,5 +179,65 @@ public class UI extends AbstractBehavior<Void> {
         } else {
             System.out.println("[CMD] Unknown env command");
         }
+    }
+
+    private void handleFridge(String[] parts) {
+        if (parts.length < 2) {
+            System.out.println("[CMD] Usage: fridge <add/consume/products/history>");
+            return;
+        }
+        switch (parts[1]) {
+            case "add" -> {
+                if (parts.length < 6) {
+                    System.out.println("[CMD] Usage: fridge add <name> <price> <weight> <amount>");
+                    return;
+                }
+                String name = parts[2];
+                double price = Double.parseDouble(parts[3]);
+                double weight = Double.parseDouble(parts[4]);
+                int amount = Integer.parseInt(parts[5]);
+                Product product = new Product(name, price, weight);
+                fridge.tell(new Fridge.AddProductCommand(product, amount, createPrintReply()));
+            }
+            case "consume" -> {
+                if (parts.length < 4) {
+                    System.out.println("[CMD] Usage: fridge consume <name> <amount>");
+                    return;
+                }
+                String name = parts[2];
+                int amount = Integer.parseInt(parts[3]);
+                fridge.tell(new Fridge.ConsumeProductCommand(name, amount, createPrintReply()));
+            }
+            case "products" -> fridge.tell(new Fridge.GetProductsCommand(createProductPrinter()));
+            case "history" -> fridge.tell(new Fridge.GetOrderHistoryCommand(createOrderHistoryPrinter()));
+            default -> System.out.println("[CMD] Unknown fridge command");
+        }
+    }
+
+    private ActorRef<Fridge.OperationResult> createPrintReply() {
+        return getContext().messageAdapter(Fridge.OperationResult.class, result -> {
+            System.out.println("[FRIDGE] " + result.message);
+            return null;
+        });
+    }
+
+    private ActorRef<Fridge.ProductsResponse> createProductPrinter() {
+        return getContext().messageAdapter(Fridge.ProductsResponse.class, response -> {
+            System.out.println("== Products in Fridge ==");
+            response.products.forEach((product, quantity) ->
+                    System.out.printf("%s: %d pcs (%.2f€ / %.2fg)%n", product.name(), quantity, product.price(), product.weight()));
+            return null;
+        });
+    }
+
+    private ActorRef<Fridge.OrderHistoryResponse> createOrderHistoryPrinter() {
+        return getContext().messageAdapter(Fridge.OrderHistoryResponse.class, response -> {
+            System.out.println("== Order History ==");
+            response.orderHistory.forEach(order -> {
+                System.out.printf("Ordered %d x %s on %s, total: €%.2f%n",
+                        order.amount(), order.product().name(), order.receipt().timestamp(), order.receipt().totalPrice());
+            });
+            return null;
+        });
     }
 }

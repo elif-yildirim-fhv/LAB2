@@ -4,6 +4,7 @@ import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.PostStop;
 import akka.actor.typed.javadsl.*;
+import at.fhv.sysarch.lab2.homeautomation.Fridge.Fridge;
 import at.fhv.sysarch.lab2.homeautomation.devices.*;
 import at.fhv.sysarch.lab2.homeautomation.environment.TemperatureEnvironment;
 import at.fhv.sysarch.lab2.homeautomation.environment.WeatherEnvironment;
@@ -11,6 +12,7 @@ import at.fhv.sysarch.lab2.homeautomation.shared.EnvironmentMode;
 import at.fhv.sysarch.lab2.homeautomation.shared.Temperature;
 import at.fhv.sysarch.lab2.homeautomation.shared.Weather;
 import at.fhv.sysarch.lab2.homeautomation.ui.UI;
+import at.fhv.sysarch.lab2.ordersystem.OrderProcessor;
 
 public class HomeAutomationController extends AbstractBehavior<Void> {
 
@@ -34,14 +36,15 @@ public class HomeAutomationController extends AbstractBehavior<Void> {
         ActorRef<TemperatureSensor.TemperatureCommand> tempSensor = context.spawn(TemperatureSensor.create(tempEnv, airCondition), "TemperatureSensor");
         ActorRef<WeatherSensor.WeatherSensorCommand> weatherSensor = context.spawn(WeatherSensor.create(weatherEnv, blinds), "WeatherSensor");
 
-        // Temperatur-Sensor auf internen Modus setzen
-        tempSensor.tell(new TemperatureSensor.SetMode(EnvironmentMode.INTERNAL));
+        // Order system
+        ActorRef<OrderProcessor.OrderCommand> orderProcessor = context.spawn(OrderProcessor.create(), "OrderProcessor");
 
-        // Fridge (nicht verwendet)
-        // ActorRef<Fridge.FridgeCommand> fridge = context.spawn(Fridge.create(), "Fridge");
+        // Fridge
+        ActorRef<Fridge.FridgeCommand> fridge = context.spawn(Fridge.create(20, 10000.0, orderProcessor), "Fridge");
 
         // UI
-        ActorRef<Void> ui = context.spawn(UI.create(tempSensor, airCondition, mediaStation, blinds), "UI");
+        ActorRef<Void> ui = context.spawn(UI.create(tempSensor, airCondition, mediaStation, blinds, fridge), "UI");
+
         context.getLog().info("HomeAutomation Application started");
     }
 

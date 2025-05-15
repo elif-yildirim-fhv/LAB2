@@ -5,165 +5,94 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3e772dab-40cf-47fa-b94a-dca3367ad838" name="Changes" comment="EnvironmentMode">
-      <change afterPath="$PROJECT_DIR$/.gradle/8.5/fileHashes/resourceHashesCache.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/HomeAutomationSystem.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/Fridge/Fridge.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/HomeAutomationController.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/AirCondition$AirConditionCommand.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/AirCondition$PowerAirCondition.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/AirCondition$ReceiveTemperature.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/AirCondition.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/Blinds$BlindsCommand.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/Blinds$MediaStationStatusChangedCommand.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/Blinds$WeatherChangedCommand.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/Blinds.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/MediaStation$MediaStationCommand.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/MediaStation$TurnMediaStationOffCommand.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/MediaStation$TurnMediaStationOnCommand.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/MediaStation.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/TemperatureSensor$DoRequestTemperature.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/TemperatureSensor$ReceiveTemperature.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/TemperatureSensor$SetMode.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/TemperatureSensor$TemperatureCommand.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/TemperatureSensor.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/WeatherSensor$DoRequestWeather.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/WeatherSensor$ReceiveWeather.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/WeatherSensor$WeatherSensorCommand.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/devices/WeatherSensor.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/environment/TemperatureEnvironment$ReceiveTemperatureRequest.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/environment/TemperatureEnvironment$TemperatureAuto.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/environment/TemperatureEnvironment$TemperatureEnvironmentCommand.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/environment/TemperatureEnvironment$TemperatureManual.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/environment/TemperatureEnvironment$TemperatureUpdate.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/environment/TemperatureEnvironment.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/environment/WeatherEnvironment$WeatherEnvironmentCommand.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/environment/WeatherEnvironment$WeatherRequest.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/environment/WeatherEnvironment$WeatherUpdate.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/environment/WeatherEnvironment.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/mqtt/MqttWeatherClient$1.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/mqtt/MqttWeatherClient$MqttCommand.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/mqtt/MqttWeatherClient$MqttMessageReceived.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/mqtt/MqttWeatherClient$StartListening.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/mqtt/MqttWeatherClient$StopListening.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/mqtt/MqttWeatherClient.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/shared/BlindsPosition.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/shared/EnvironmentMode.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/shared/Movie.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/shared/Temperature.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/shared/Weather.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/ui/UI.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/annotations.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/auth.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/backend.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/billing.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/client.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/config_change.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/consumer.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/context.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/control.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/distribution.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/documentation.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/endpoint.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/error_reason.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/field_behavior.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/http.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/httpbody.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/label.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/launch_stage.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/log.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/logging.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/metric.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/monitored_resource.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/monitoring.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/quota.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/resource.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/routing.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/service.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/source_info.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/system_parameter.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/usage.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/visibility.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/cloud/audit/audit_log.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/cloud/extended_operations.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/geo/type/viewport.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/logging/type/http_request.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/logging/type/log_severity.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/longrunning/operations.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/any.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/api.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/descriptor.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/duration.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/empty.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/field_mask.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/source_context.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/struct.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/timestamp.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/type.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/wrappers.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/rpc/code.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/rpc/context/attribute_context.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/rpc/context/audit_context.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/rpc/error_details.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/rpc/status.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/calendar_period.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/color.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/date.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/datetime.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/dayofweek.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/decimal.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/expr.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/fraction.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/interval.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/latlng.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/localized_text.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/money.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/month.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/phone_number.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/postal_address.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/quaternion.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/timeofday.proto" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/resources/main/logback.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/.cache/expanded/expanded.lock" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/HomeAutomationController.class.uniqueId8" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/MqttWeatherClient$1.class.uniqueId24" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/MqttWeatherClient$MqttCommand.class.uniqueId17" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/MqttWeatherClient$MqttMessageReceived.class.uniqueId10" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/MqttWeatherClient$StartListening.class.uniqueId20" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/MqttWeatherClient$StopListening.class.uniqueId25" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/MqttWeatherClient.class.uniqueId4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/TemperatureEnvironment$ReceiveTemperatureRequest.class.uniqueId3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/TemperatureEnvironment$TemperatureAuto.class.uniqueId1" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/TemperatureEnvironment$TemperatureEnvironmentCommand.class.uniqueId18" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/TemperatureEnvironment$TemperatureManual.class.uniqueId14" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/TemperatureEnvironment$TemperatureUpdate.class.uniqueId26" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/TemperatureEnvironment.class.uniqueId23" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/TemperatureSensor$DoRequestTemperature.class.uniqueId16" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/TemperatureSensor$ReceiveTemperature.class.uniqueId11" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/TemperatureSensor$SetMode.class.uniqueId21" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/TemperatureSensor$TemperatureCommand.class.uniqueId0" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/TemperatureSensor.class.uniqueId22" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/UI.class.uniqueId13" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/WeatherEnvironment$WeatherEnvironmentCommand.class.uniqueId9" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/WeatherEnvironment$WeatherRequest.class.uniqueId7" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/WeatherEnvironment$WeatherUpdate.class.uniqueId2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/WeatherEnvironment.class.uniqueId6" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/WeatherSensor$ReceiveWeatherResponse.class.uniqueId15" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/WeatherSensor$ScheduleWeatherRequest.class.uniqueId12" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/WeatherSensor$WeatherSensorCommand.class.uniqueId5" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/compileTransaction/stash-dir/WeatherSensor.class.uniqueId19" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.5/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.5/checksums/checksums.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.5/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.5/checksums/md5-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.5/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.5/checksums/sha1-checksums.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/8.5/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.5/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/8.5/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.5/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/8.5/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.5/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/8.5/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.5/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/8.5/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.5/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab2/homeautomation/devices/TemperatureSensor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab2/homeautomation/devices/TemperatureSensor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab2/homeautomation/devices/WeatherSensor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab2/homeautomation/devices/WeatherSensor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab2/homeautomation/environment/TemperatureEnvironment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab2/homeautomation/environment/TemperatureEnvironment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab2/homeautomation/environment/WeatherEnvironment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab2/homeautomation/environment/WeatherEnvironment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab2/homeautomation/mqtt/MqttWeatherClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab2/homeautomation/mqtt/MqttWeatherClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/Fridge/Fridge.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/Fridge/Fridge.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/HomeAutomationController.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/HomeAutomationController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/ui/UI.class" beforeDir="false" afterPath="$PROJECT_DIR$/build/classes/java/main/at/fhv/sysarch/lab2/homeautomation/ui/UI.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/annotations.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/annotations.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/auth.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/auth.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/backend.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/backend.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/billing.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/billing.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/client.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/client.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/config_change.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/config_change.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/consumer.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/consumer.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/context.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/context.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/control.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/control.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/distribution.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/distribution.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/documentation.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/documentation.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/endpoint.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/endpoint.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/error_reason.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/error_reason.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/field_behavior.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/field_behavior.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/http.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/http.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/httpbody.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/httpbody.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/label.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/label.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/launch_stage.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/launch_stage.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/log.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/log.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/logging.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/logging.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/metric.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/metric.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/monitored_resource.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/monitored_resource.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/monitoring.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/monitoring.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/quota.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/quota.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/resource.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/resource.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/routing.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/routing.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/service.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/service.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/source_info.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/source_info.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/system_parameter.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/system_parameter.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/usage.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/usage.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/visibility.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/api/visibility.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/cloud/audit/audit_log.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/cloud/audit/audit_log.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/cloud/extended_operations.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/cloud/extended_operations.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/geo/type/viewport.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/geo/type/viewport.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/logging/type/http_request.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/logging/type/http_request.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/logging/type/log_severity.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/logging/type/log_severity.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/longrunning/operations.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/longrunning/operations.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/any.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/any.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/api.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/api.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/descriptor.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/descriptor.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/duration.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/duration.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/empty.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/empty.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/field_mask.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/field_mask.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/source_context.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/source_context.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/struct.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/struct.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/timestamp.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/timestamp.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/type.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/type.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/wrappers.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/protobuf/wrappers.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/rpc/code.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/rpc/code.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/rpc/context/attribute_context.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/rpc/context/attribute_context.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/rpc/context/audit_context.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/rpc/context/audit_context.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/rpc/error_details.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/rpc/error_details.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/rpc/status.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/rpc/status.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/calendar_period.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/calendar_period.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/color.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/color.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/date.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/date.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/datetime.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/datetime.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/dayofweek.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/dayofweek.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/decimal.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/decimal.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/expr.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/expr.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/fraction.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/fraction.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/interval.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/interval.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/latlng.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/latlng.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/localized_text.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/localized_text.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/money.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/money.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/month.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/month.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/phone_number.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/phone_number.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/postal_address.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/postal_address.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/quaternion.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/quaternion.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/timeofday.proto" beforeDir="false" afterPath="$PROJECT_DIR$/build/extracted-include-protos/main/google/type/timeofday.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" afterPath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab2/homeautomation/HomeAutomationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab2/homeautomation/HomeAutomationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab2/homeautomation/ui/UI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/at/fhv/sysarch/lab2/homeautomation/ui/UI.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -178,12 +107,31 @@
   <component name="ExternalProjectsManager">
     <system id="GRADLE">
       <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
             <expand>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="Lab2Template" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="Lab2Template" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="Lab2Template" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="other" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="Lab2Template" type="f1a62948:ProjectNode" />
+                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
               </path>
             </expand>
             <select />
@@ -207,10 +155,10 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
-  <component name="KubernetesApiProvider"><![CDATA[{
-  "isMigrated": true
-}]]></component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -222,10 +170,11 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Gradle.Lab2 [:HomeAutomationSystem.main()].executor": "Run",
+    "Gradle.Lab2 [generateProto].executor": "Run",
     "Gradle.Lab2.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "environment",
+    "git-widget-placeholder": "dev",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Systemarchitekturen/Lab2",
     "node.js.detected.package.eslint": "true",
@@ -237,6 +186,28 @@
   }
 }]]></component>
   <component name="RunManager">
+    <configuration name="Lab2 [generateProto]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="generateProto" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
     <configuration default="true" type="JetRunConfigurationType">
       <module name="Lab2" />
       <method v="2">
@@ -250,6 +221,11 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.Lab2 [generateProto]" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
