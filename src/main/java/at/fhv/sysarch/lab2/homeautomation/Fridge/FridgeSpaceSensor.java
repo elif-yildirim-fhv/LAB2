@@ -1,0 +1,63 @@
+package at.fhv.sysarch.lab2.homeautomation.Fridge;
+
+
+import akka.actor.typed.ActorRef;
+import akka.actor.typed.Behavior;
+import akka.actor.typed.javadsl.AbstractBehavior;
+import akka.actor.typed.javadsl.ActorContext;
+import akka.actor.typed.javadsl.Behaviors;
+import akka.actor.typed.javadsl.Receive;
+import at.fhv.sysarch.lab2.ordersystem.OrderProcessor;
+
+
+public class FridgeSpaceSensor extends AbstractBehavior<FridgeSpaceSensor.FridgeSpaceCommand> {
+
+    public interface FridgeSpaceCommand { }
+
+    public static final class AvailableSpaceCommand implements FridgeSpaceCommand {
+        final ActorRef<OrderProcessor.SpaceSensorCommand> prepareOrder;
+        public AvailableSpaceCommand(ActorRef<OrderProcessor.SpaceSensorCommand> prepareOrder) {
+            this.prepareOrder = prepareOrder;
+        }
+    }
+
+    public static final class AddSpaceCommand implements FridgeSpaceCommand { }
+
+    public static final class RemoveSpaceCommand implements FridgeSpaceCommand { }
+
+    public static Behavior<FridgeSpaceCommand> create() {
+        return Behaviors.setup(FridgeSpaceSensor::new);
+    }
+
+    private final int maxSpace = 20;
+    private int space = 0;
+
+    public FridgeSpaceSensor(ActorContext<FridgeSpaceCommand> context) {
+        super(context);
+    }
+
+    @Override
+    public Receive<FridgeSpaceCommand> createReceive() {
+        return newReceiveBuilder()
+                .onMessage(AvailableSpaceCommand.class, this::onAvailableSpace)
+                .onMessage(AddSpaceCommand.class, this::onItemAdd)
+                .onMessage(RemoveSpaceCommand.class, this::onItemRemove)
+                .build();
+    }
+
+    private Behavior<FridgeSpaceCommand> onAvailableSpace(AvailableSpaceCommand command) {
+        command.prepareOrder.tell(new OrderProcessor.SpaceSensorCommand(maxSpace - space));
+        return this;
+    }
+
+    private Behavior<FridgeSpaceCommand> onItemAdd(AddSpaceCommand command) {
+        space += 1;
+        getContext().getLog().info("[FRIDGE] An Item was added to the fridge, there are " + space + " items currently in the fridge (max " + maxSpace + " items) ");       return this;
+    }
+
+    private Behavior<FridgeSpaceCommand> onItemRemove(RemoveSpaceCommand command) {
+        space -= 1;
+        getContext().getLog().info("[FRIDGE] An Item was removed from the fridge, there are " + space + " items currently in the fridge (max " + maxSpace + " items) ");       return this;
+    }
+
+}
