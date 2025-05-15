@@ -10,10 +10,12 @@ import at.fhv.sysarch.lab2.homeautomation.shared.Temperature;
 import java.time.Duration;
 
 public class TemperatureSensor extends AbstractBehavior<TemperatureSensor.TemperatureCommand> {
+    private EnvironmentMode mode = EnvironmentMode.INTERNAL;
 
     public interface TemperatureCommand {}
 
     public static final class DoRequestTemperature implements TemperatureCommand {}
+
     public static final class ReceiveTemperature implements TemperatureCommand {
         public final Temperature temperature;
 
@@ -40,7 +42,6 @@ public class TemperatureSensor extends AbstractBehavior<TemperatureSensor.Temper
 
     private final ActorRef<TemperatureEnvironment.TemperatureEnvironmentCommand> environment;
     private final ActorRef<AirCondition.AirConditionCommand> airCondition;
-    private EnvironmentMode mode = EnvironmentMode.INTERNAL;
 
     private TemperatureSensor(ActorContext<TemperatureCommand> context,
                               ActorRef<TemperatureEnvironment.TemperatureEnvironmentCommand> environment,
@@ -65,13 +66,15 @@ public class TemperatureSensor extends AbstractBehavior<TemperatureSensor.Temper
     private Behavior<TemperatureCommand> onRequestTemperature(DoRequestTemperature msg) {
         if (mode == EnvironmentMode.INTERNAL) {
             environment.tell(new TemperatureEnvironment.ReceiveTemperatureRequest(getContext().getSelf()));
-        } else {
-            getContext().getLog().info("External mode: skipping internal temperature request");
         }
         return this;
     }
 
     private Behavior<TemperatureCommand> onReceiveTemperature(ReceiveTemperature msg) {
+        if (mode == EnvironmentMode.INTERNAL) {
+            return this;
+        }
+
         getContext().getLog().info("[SENSOR] Measured temperature: {}", msg.temperature);
         airCondition.tell(new AirCondition.ReceiveTemperature(msg.temperature));
         return this;

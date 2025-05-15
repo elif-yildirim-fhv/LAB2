@@ -10,6 +10,7 @@ import at.fhv.sysarch.lab2.homeautomation.shared.Movie;
 import at.fhv.sysarch.lab2.homeautomation.shared.Temperature;
 import at.fhv.sysarch.lab2.homeautomation.Fridge.Fridge;
 import at.fhv.sysarch.lab2.homeautomation.Fridge.Product;
+import at.fhv.sysarch.lab2.homeautomation.mqtt.MqttWeatherClient;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -22,15 +23,17 @@ public class UI extends AbstractBehavior<Void> {
     private final ActorRef<MediaStation.MediaStationCommand> mediaStation;
     private final ActorRef<Blinds.BlindsCommand> blinds;
     private final ActorRef<Fridge.FridgeCommand> fridge;
+    private final ActorRef<MqttWeatherClient.MqttCommand> mqttClient;
 
     public static Behavior<Void> create(
             ActorRef<TemperatureSensor.TemperatureCommand> tempSensor,
             ActorRef<AirCondition.AirConditionCommand> airCondition,
             ActorRef<MediaStation.MediaStationCommand> mediaStation,
             ActorRef<Blinds.BlindsCommand> blinds,
-            ActorRef<Fridge.FridgeCommand> fridge
+            ActorRef<Fridge.FridgeCommand> fridge,
+            ActorRef<MqttWeatherClient.MqttCommand> mqttClient
     ) {
-        return Behaviors.setup(context -> new UI(context, tempSensor, airCondition, mediaStation, blinds, fridge));
+        return Behaviors.setup(context -> new UI(context, tempSensor, airCondition, mediaStation, blinds, fridge, mqttClient));
     }
 
     private UI(
@@ -39,7 +42,8 @@ public class UI extends AbstractBehavior<Void> {
             ActorRef<AirCondition.AirConditionCommand> airCondition,
             ActorRef<MediaStation.MediaStationCommand> mediaStation,
             ActorRef<Blinds.BlindsCommand> blinds,
-            ActorRef<Fridge.FridgeCommand> fridge
+            ActorRef<Fridge.FridgeCommand> fridge,
+            ActorRef<MqttWeatherClient.MqttCommand> mqttClient
     ) {
         super(context);
         this.tempSensor = tempSensor;
@@ -47,6 +51,7 @@ public class UI extends AbstractBehavior<Void> {
         this.mediaStation = mediaStation;
         this.blinds = blinds;
         this.fridge = fridge;
+        this.mqttClient = mqttClient;
         new Thread(this::runCommandLine).start();
         getContext().getLog().info("[UI] Started");
     }
@@ -176,6 +181,14 @@ public class UI extends AbstractBehavior<Void> {
             EnvironmentMode mode = parts[2].equalsIgnoreCase("external") ? EnvironmentMode.EXTERNAL : EnvironmentMode.INTERNAL;
             tempSensor.tell(new TemperatureSensor.SetMode(mode));
             System.out.println("[CMD] Temperature mode set to " + mode);
+
+            if (mode == EnvironmentMode.EXTERNAL) {
+                mqttClient.tell(new MqttWeatherClient.StartListening());
+                System.out.println("[CMD] MQTT listening started");
+            } else {
+                mqttClient.tell(new MqttWeatherClient.StopListening());
+                System.out.println("[CMD] MQTT listening stopped");
+            }
         } else {
             System.out.println("[CMD] Unknown env command");
         }

@@ -72,7 +72,7 @@ public class TemperatureEnvironment extends AbstractBehavior<TemperatureEnvironm
 
     private Behavior<TemperatureEnvironmentCommand> onUpdate(TemperatureUpdate msg) {
         if (isAuto) {
-            double delta = (random.nextInt(60) - 30) / 10.0;
+            double delta = (random.nextInt(60) - 30) / 10.0;  // -3.0 bis +3.0
             currentTemperature = new Temperature(currentTemperature.unit(), currentTemperature.value() + delta);
             getContext().getLog().info("[ENVIRONMENT] New temperature: " + currentTemperature);
         }

@@ -136,7 +136,8 @@ public class MqttWeatherClient extends AbstractBehavior<MqttWeatherClient.MqttCo
 			if (msg.topic.equals(TOPIC_TEMPERATURE)) {
 				JsonNode root = objectMapper.readTree(msg.message);
 				double temperature = root.get("temperature").asDouble();
-				tempSensor.tell(new TemperatureSensor.ReceiveTemperature(new Temperature("Celsius", temperature)));
+				tempSensor.tell(new TemperatureSensor.ReceiveTemperature(
+						new Temperature("Celsius", temperature)));
 			} else if (msg.topic.equals(TOPIC_WEATHER)) {
 				Weather weather = msg.message.equalsIgnoreCase("sunny") ? Weather.SUNNY : Weather.RAINY;
 				weatherSensor.tell(new WeatherSensor.ReceiveWeather(weather));

@@ -4,7 +4,6 @@ import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.PostStop;
 import akka.actor.typed.javadsl.*;
-
 import at.fhv.sysarch.lab2.homeautomation.Fridge.Fridge;
 import at.fhv.sysarch.lab2.homeautomation.devices.*;
 import at.fhv.sysarch.lab2.homeautomation.environment.TemperatureEnvironment;
@@ -34,26 +33,20 @@ public class HomeAutomationController extends AbstractBehavior<Void> {
         ActorRef<Blinds.BlindsCommand> blinds = context.spawn(Blinds.create(), "Blinds");
         ActorRef<MediaStation.MediaStationCommand> mediaStation = context.spawn(MediaStation.create(blinds), "MediaStation");
         ActorRef<AirCondition.AirConditionCommand> airCondition = context.spawn(AirCondition.create(), "AirCondition");
-        ActorRef<TemperatureSensor.TemperatureCommand> tempSensor =
-                context.spawn(TemperatureSensor.create(tempEnv, airCondition), "TemperatureSensor");
-        ActorRef<WeatherSensor.WeatherSensorCommand> weatherSensor =
-                context.spawn(WeatherSensor.create(weatherEnv, blinds), "WeatherSensor");
+        ActorRef<TemperatureSensor.TemperatureCommand> tempSensor = context.spawn(TemperatureSensor.create(tempEnv, airCondition), "TemperatureSensor");
+        ActorRef<WeatherSensor.WeatherSensorCommand> weatherSensor = context.spawn(WeatherSensor.create(weatherEnv, blinds), "WeatherSensor");
+
+        // MQTT Client (erstellt, aber noch NICHT gestartet)
+        ActorRef<MqttWeatherClient.MqttCommand> mqttClient = context.spawn(MqttWeatherClient.create(tempSensor, weatherSensor), "MqttClient");
 
         // Order system
-        ActorRef<OrderProcessor.OrderCommand> orderProcessor =
-                context.spawn(OrderProcessor.create(), "OrderProcessor");
+        ActorRef<OrderProcessor.OrderCommand> orderProcessor = context.spawn(OrderProcessor.create(), "OrderProcessor");
 
         // Fridge
-        ActorRef<Fridge.FridgeCommand> fridge =
-                context.spawn(Fridge.create(20, 10000.0, orderProcessor), "Fridge");
+        ActorRef<Fridge.FridgeCommand> fridge = context.spawn(Fridge.create(20, 10000.0, orderProcessor), "Fridge");
 
-        // UI
-        ActorRef<Void> ui = context.spawn(UI.create(tempSensor, airCondition, mediaStation, blinds, fridge), "UI");
-
-        // MQTT Client (NEU)
-        ActorRef<MqttWeatherClient.MqttCommand> mqttClient =
-                context.spawn(MqttWeatherClient.create(tempSensor, weatherSensor), "MqttClient");
-        mqttClient.tell(new MqttWeatherClient.StartListening());
+        // UI mit mqttClient
+        ActorRef<Void> ui = context.spawn(UI.create(tempSensor, airCondition, mediaStation, blinds, fridge, mqttClient), "UI");
 
         context.getLog().info("HomeAutomation Application started");
     }
